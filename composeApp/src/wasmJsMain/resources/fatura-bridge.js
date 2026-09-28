@@ -24,14 +24,19 @@
       return whenGisReady(10000).then(function (ready) {
         if (!ready) return JSON.stringify({ error: 'gis_unavailable' });
         return new Promise(function (resolve) {
-          var client = google.accounts.oauth2.initTokenClient({
-            client_id: clientId,
-            scope: scopes,
-            prompt: prompt,
-            callback: function (response) { resolve(JSON.stringify(response)); },
-            error_callback: function (err) { resolve(JSON.stringify({ error: (err && err.type) || 'unknown' })); }
-          });
-          client.requestAccessToken();
+          try {
+            var client = google.accounts.oauth2.initTokenClient({
+              client_id: clientId,
+              scope: scopes,
+              prompt: prompt,
+              callback: function (response) { resolve(JSON.stringify(response)); },
+              error_callback: function (err) { resolve(JSON.stringify({ error: (err && err.type) || 'unknown' })); }
+            });
+            client.requestAccessToken();
+          } catch (e) {
+            // A malformed client ID makes initTokenClient throw instead of calling back.
+            resolve(JSON.stringify({ error: 'init_failed' }));
+          }
         });
       });
     },

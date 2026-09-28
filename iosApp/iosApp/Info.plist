@@ -5,6 +5,6 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Fatura needs camera access to scan invoice QR codes. Photos are never stored or uploaded.</string>
+	<string>Fatura uses the camera to scan invoice QR codes and photograph invoices. Invoice photos are uploaded only to the Google Drive folder you choose.</string>
 </dict>
 </plist>

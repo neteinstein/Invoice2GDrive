@@ -2,10 +2,12 @@ package org.neteinstein.snap2sheet.data.auth
 
 import io.ktor.client.HttpClient
 import kotlinx.browser.sessionStorage
+import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import org.neteinstein.snap2sheet.data.local.KeyValueStore
 import kotlin.js.Promise
 import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
@@ -24,13 +26,16 @@ private fun revokeJs(token: String): Unit = js("window.faturaAuth.revoke(token)"
  * index.html). Browsers get short-lived access tokens only — no refresh token — so an expired one
  * is re-requested with `prompt: ''`, which completes without UI while the Google session and the
  * grant are still valid. Needs a "Web application" OAuth client whose authorized JavaScript
- * origins include the deployed site (`google.webClientId`, see composeApp/build.gradle.kts).
+ * origins include the deployed site (`google.webClientId`, see composeApp/build.gradle.kts, or
+ * entered in the app — see [OAuthClientSetup]).
  * The token is kept in sessionStorage so a reload doesn't need another round-trip.
  */
 class WebGoogleAuthProvider(
-    private val clientId: String = GoogleClientConfig.WEB_CLIENT_ID,
+    override val clientSetup: OAuthClientSetup,
     private val clock: Clock = Clock.System,
 ) : GoogleAuthProvider {
+
+    private val clientId: String get() = clientSetup.clientId
 
     private val json = Json { ignoreUnknownKeys = true }
     private var cached: CachedToken? = sessionStorage.getItem(SESSION_TOKEN_KEY)
@@ -57,7 +62,7 @@ class WebGoogleAuthProvider(
     }
 
     private suspend fun request(prompt: String): String? {
-        check(isConfigured) { "Google sign-in isn't configured for this build." }
+        check(isConfigured) { "Enter your Google OAuth client ID first." }
         val raw = requestTokenJs(clientId, GoogleScopes.ALL.joinToString(" "), prompt).await().toString()
         val response = json.decodeFromString<TokenResponse>(raw)
         val token = response.accessToken
@@ -66,6 +71,8 @@ class WebGoogleAuthProvider(
                 "popup_closed" -> "Sign-in was cancelled."
                 "popup_failed_to_open" -> "Your browser blocked Google's sign-in popup. Allow popups for this site."
                 "access_denied" -> "Access to Google was denied."
+                "invalid_client", "init_failed" ->
+                    "Google rejected this client ID. Check it, and that ${window.location.origin} is one of its authorized JavaScript origins."
                 "gis_unavailable" -> "Couldn't load Google sign-in. Check your connection or ad blocker."
                 else -> "Google sign-in failed (${response.error ?: "unknown error"})."
             }
@@ -89,4 +96,12 @@ class WebGoogleAuthProvider(
     private data class CachedToken(val value: String, val expiresAtMillis: Long)
 }
 
-actual fun platformGoogleAuthProvider(http: HttpClient): GoogleAuthProvider = WebGoogleAuthProvider()
+actual fun platformGoogleAuthProvider(http: HttpClient, store: KeyValueStore): GoogleAuthProvider =
+    WebGoogleAuthProvider(
+        OAuthClientSetup(
+            store = store,
+            buildTimeClientId = GoogleClientConfig.WEB_CLIENT_ID,
+            clientType = "Web application",
+            registration = "Authorized JavaScript origin: " + window.location.origin,
+        )
+    )
