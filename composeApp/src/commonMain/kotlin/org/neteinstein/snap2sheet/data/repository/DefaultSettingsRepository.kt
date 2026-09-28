@@ -12,7 +12,8 @@ private const val KEY_MATCH_BY_HEADER = "append_match_by_header"
 private const val KEY_SKIP_DUPLICATES = "append_skip_duplicates"
 private const val KEY_NEW_TAB_MONTHLY = "append_new_tab_monthly"
 private const val KEY_ALWAYS_SAVE_DEFAULT = "always_save_default"
-private const val KEY_NOTIFY_ON_FAILURE = "notify_on_failure"
+private const val KEY_NOTIFY_WHEN_SAVED = "notify_when_saved"
+private const val KEY_ONBOARDING_COMPLETED = "onboarding_completed"
 
 class DefaultSettingsRepository(private val store: KeyValueStore) : SettingsRepository {
 
@@ -52,13 +53,23 @@ class DefaultSettingsRepository(private val store: KeyValueStore) : SettingsRepo
         store.putString(KEY_ALWAYS_SAVE_DEFAULT, enabled.toString())
     }
 
-    private val _notifyOnScanFailure = MutableStateFlow(
-        store.getString(KEY_NOTIFY_ON_FAILURE)?.toBooleanStrictOrNull() ?: true
+    private val _notifyWhenSaveFinishes = MutableStateFlow(
+        store.getString(KEY_NOTIFY_WHEN_SAVED)?.toBooleanStrictOrNull() ?: true
     )
-    override val notifyOnScanFailure: StateFlow<Boolean> = _notifyOnScanFailure.asStateFlow()
+    override val notifyWhenSaveFinishes: StateFlow<Boolean> = _notifyWhenSaveFinishes.asStateFlow()
 
-    override fun setNotifyOnScanFailure(enabled: Boolean) {
-        _notifyOnScanFailure.value = enabled
-        store.putString(KEY_NOTIFY_ON_FAILURE, enabled.toString())
+    override fun setNotifyWhenSaveFinishes(enabled: Boolean) {
+        _notifyWhenSaveFinishes.value = enabled
+        store.putString(KEY_NOTIFY_WHEN_SAVED, enabled.toString())
+    }
+
+    private val _onboardingCompleted = MutableStateFlow(
+        store.getString(KEY_ONBOARDING_COMPLETED)?.toBooleanStrictOrNull() ?: false
+    )
+    override val onboardingCompleted: StateFlow<Boolean> = _onboardingCompleted.asStateFlow()
+
+    override fun setOnboardingCompleted(completed: Boolean) {
+        _onboardingCompleted.value = completed
+        store.putString(KEY_ONBOARDING_COMPLETED, completed.toString())
     }
 }

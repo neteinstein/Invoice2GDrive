@@ -28,6 +28,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
 
       - name: Build wasmJs web distribution
+        # The OAuth client ID isn't a secret (it ships in the page), so it lives in a repository
+        # variable. Without it the site builds in demo-only mode.
+        env:
+          GOOGLE_WEB_CLIENT_ID: ${{ vars.GOOGLE_WEB_CLIENT_ID }}
         run: ./gradlew :composeApp:wasmJsBrowserDistribution
 
       - uses: actions/upload-pages-artifact@v3

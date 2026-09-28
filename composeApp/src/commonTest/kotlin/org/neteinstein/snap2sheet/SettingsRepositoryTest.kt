@@ -3,17 +3,10 @@ package org.neteinstein.snap2sheet
 import org.neteinstein.snap2sheet.data.local.KeyValueStore
 import org.neteinstein.snap2sheet.data.repository.DefaultSettingsRepository
 import org.neteinstein.snap2sheet.domain.model.AppTheme
+import org.neteinstein.snap2sheet.testing.InMemoryKeyValueStore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
-
-private class InMemoryKeyValueStore : KeyValueStore {
-    private val values = mutableMapOf<String, String>()
-    override fun getString(key: String): String? = values[key]
-    override fun putString(key: String, value: String) {
-        values[key] = value
-    }
-}
 
 class SettingsRepositoryTest {
 
@@ -41,10 +34,10 @@ class SettingsRepositoryTest {
     }
 
     @Test
-    fun defaultNotifyOnScanFailure_isEnabled() {
+    fun defaultNotifyWhenSaveFinishes_isEnabled() {
         val repository = DefaultSettingsRepository(InMemoryKeyValueStore())
 
-        assertEquals(true, repository.notifyOnScanFailure.value)
+        assertEquals(true, repository.notifyWhenSaveFinishes.value)
         assertFalse(repository.appendRules.value.newSheetTabEachMonth)
     }
 }
