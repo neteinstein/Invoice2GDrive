@@ -59,7 +59,7 @@ class DefaultAccountRepository(
         if (!response.status.isSuccess()) error("Signed in, but Google didn't return your profile (${response.status.value}).")
         val info: UserInfo = response.body()
         val email = info.email ?: error("Google didn't share your email address.")
-        return GoogleAccount(email = email, initials = GoogleAccount.initialsFor(info.name, email)).also(::setAccount)
+        return GoogleAccount(email = email, initials = GoogleAccount.initialsFrom(info.name, email)).also(::setAccount)
     }
 
     override fun startDemo(): GoogleAccount =

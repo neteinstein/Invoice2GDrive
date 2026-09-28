@@ -11,18 +11,15 @@ data class GoogleAccount(
     val isDemo: Boolean = false,
 ) {
     companion object {
-        /** Initials from a display name ("Pedro Almeida" → "PA"), falling back to the email's local part. */
-        fun initialsFor(name: String?, email: String): String {
-            val words = name?.trim()?.split(Regex("\\s+"))?.filter { it.isNotEmpty() }.orEmpty()
-            val fromName = when {
-                words.size >= 2 -> "${words.first().first()}${words.last().first()}"
-                words.size == 1 -> words.first().take(2)
-                else -> null
+        /** Derives a 1-2 letter avatar label from a display name, falling back to the email. */
+        fun initialsFrom(displayName: String?, email: String): String {
+            val source = displayName?.trim()?.takeIf { it.isNotEmpty() } ?: email
+            val words = source.trim().split(Regex("\\s+")).filter { it.isNotEmpty() }
+            return when {
+                words.size >= 2 -> "${words[0].first()}${words[1].first()}".uppercase()
+                words.size == 1 -> words[0].take(2).uppercase()
+                else -> "?"
             }
-            val fromEmail = email.substringBefore('@').split('.', '_', '-').filter { it.isNotEmpty() }.let { parts ->
-                if (parts.size >= 2) "${parts[0].first()}${parts[1].first()}" else parts.firstOrNull()?.take(2)
-            }
-            return (fromName ?: fromEmail ?: "?").uppercase()
         }
     }
 }
