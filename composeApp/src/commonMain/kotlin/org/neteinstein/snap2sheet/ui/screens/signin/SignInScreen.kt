@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,9 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.koin.compose.koinInject
-import org.neteinstein.snap2sheet.data.repository.AccountRepository
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
+import org.neteinstein.snap2sheet.ui.components.FaturaGhostButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
+import org.neteinstein.snap2sheet.ui.components.Notice
 import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
 import org.neteinstein.snap2sheet.ui.components.IconBadge
@@ -34,10 +38,13 @@ import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 
 @Composable
 fun SignInScreen(
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     onSignedIn: () -> Unit,
-    accountRepository: AccountRepository = koinInject(),
+    viewModel: SignInViewModel = koinViewModel(),
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(state.signedIn) { if (state.signedIn) onSignedIn() }
+
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
         FaturaTopBar(title = "", onBack = onBack)
 
@@ -69,19 +76,37 @@ fun SignInScreen(
 
             org.neteinstein.snap2sheet.ui.components.FaturaCard(containerColor = FaturaColors.SurfaceMuted, contentPadding = 4.dp) {
                 PermissionRow("View and manage your Google Sheets")
+                PermissionRow("Upload invoice photos to your Google Drive")
                 PermissionRow("See your name and email address")
             }
 
             Spacer(Modifier.height(24.dp))
 
-            FaturaPrimaryButton(
-                text = "Continue with Google",
-                onClick = {
-                    accountRepository.signIn()
-                    onSignedIn()
-                },
-            ) {
-                GoogleGlyph()
+            state.error?.let {
+                Notice(text = it, color = FaturaColors.Danger, background = FaturaColors.DangerSoft)
+                Spacer(Modifier.height(12.dp))
+            }
+
+            if (state.isGoogleSignInAvailable) {
+                FaturaPrimaryButton(
+                    text = if (state.isSigningIn) "Connecting…" else "Continue with Google",
+                    onClick = viewModel::signInWithGoogle,
+                    enabled = !state.isSigningIn,
+                ) {
+                    GoogleGlyph()
+                }
+                Spacer(Modifier.height(4.dp))
+                FaturaGhostButton(text = "Try it without an account", onClick = viewModel::startDemo)
+            } else {
+                Text(
+                    "Google sign-in isn't set up in this build, so Fatura runs in demo mode: spreadsheets are simulated on this device.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FaturaColors.Muted,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(12.dp))
+                FaturaPrimaryButton(text = "Try the demo", onClick = viewModel::startDemo)
             }
         }
 

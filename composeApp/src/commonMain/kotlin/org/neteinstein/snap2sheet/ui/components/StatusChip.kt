@@ -14,8 +14,10 @@ import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 @Composable
 fun StatusChip(status: InvoiceStatus, modifier: Modifier = Modifier) {
     val (label, foreground, background) = when (status) {
+        InvoiceStatus.QUEUED -> Triple("Saving", FaturaColors.Accent, FaturaColors.AccentSoft)
         InvoiceStatus.SYNCED -> Triple("Synced", FaturaColors.Success, FaturaColors.SuccessSoft)
         InvoiceStatus.NEEDS_REVIEW -> Triple("Review", FaturaColors.Warning, FaturaColors.WarningSoft)
+        InvoiceStatus.DUPLICATE -> Triple("Duplicate", FaturaColors.Muted, FaturaColors.Background)
         InvoiceStatus.FAILED -> Triple("Failed", FaturaColors.Danger, FaturaColors.DangerSoft)
     }
     Surface(modifier = modifier, shape = RoundedCornerShape(999.dp), color = background) {

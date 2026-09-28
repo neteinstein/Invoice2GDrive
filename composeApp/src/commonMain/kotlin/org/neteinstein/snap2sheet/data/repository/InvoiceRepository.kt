@@ -1,180 +1,215 @@
 package org.neteinstein.snap2sheet.data.repository
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.json.Json
+import org.neteinstein.snap2sheet.data.local.KeyValueStore
+import org.neteinstein.snap2sheet.data.local.PhotoStore
+import org.neteinstein.snap2sheet.domain.model.DriveItem
 import org.neteinstein.snap2sheet.domain.model.Invoice
+import org.neteinstein.snap2sheet.domain.model.InvoicePhoto
 import org.neteinstein.snap2sheet.domain.model.InvoiceStatus
+import org.neteinstein.snap2sheet.domain.qr.AtQrCodeParser
+import org.neteinstein.snap2sheet.domain.qr.QrParseResult
+import org.neteinstein.snap2sheet.domain.validation.InvoiceValidator
+import kotlin.time.Clock
+import kotlin.uuid.Uuid
+
+private const val KEY_INVOICES = "invoices"
 
 /**
- * Scanned invoices, most recent first. Backed by an in-memory mock today — persisting and
- * actually appending rows to Google Sheets needs the Sheets API wired up behind
- * [AccountRepository]'s sign-in.
+ * Scanned invoices (most recent first, persisted locally) and the draft currently under review.
+ * Submitting the draft queues it; [org.neteinstein.snap2sheet.data.sync.InvoiceSyncer] does the
+ * uploading and appending in the background and reports progress back through [update].
  */
 interface InvoiceRepository {
     val invoices: StateFlow<List<Invoice>>
 
-    /** The invoice currently being reviewed after a scan, before it's saved to a spreadsheet. */
+    /** The invoice being put together: QR data (or typed in), then its photo, then reviewed. */
     val draftInvoice: StateFlow<Invoice?>
 
-    fun addInvoice(invoice: Invoice)
-    fun lastScanned(): Invoice?
+    /** Decodes a scanned QR payload into a new [draftInvoice]; leaves the draft alone on failure. */
+    fun startDraftFromQr(payload: String): QrParseResult
 
-    /** Decodes the (simulated) QR payload just scanned into a new [draftInvoice]. */
-    fun startDraftFromScan(): Invoice
+    /** Starts an empty draft for typing an invoice in by hand (no QR code, or it won't scan). */
+    fun startManualDraft()
 
     fun updateDraft(invoice: Invoice)
 
-    /** Moves [draftInvoice] into [invoices] as [InvoiceStatus.SYNCED] and clears the draft. */
-    fun commitDraft(destinationSpreadsheetName: String): Invoice?
+    /** Stores the photo of the whole invoice on the device and attaches it to the draft. */
+    suspend fun attachPhoto(bytes: ByteArray, mimeType: String)
+    fun removeDraftPhoto()
+    suspend fun loadPhoto(photo: InvoicePhoto): ByteArray?
+
+    fun discardDraft()
+
+    /** Queues the draft for saving to [spreadsheet] and [folder]; returns the queued invoice. */
+    fun submitDraft(spreadsheet: DriveItem, folder: DriveItem): Invoice?
+
+    /** Replaces the stored invoice with the same id (no-op if it was deleted meanwhile). */
+    fun update(invoice: Invoice)
+
+    /** Frees an uploaded photo's local copy. */
+    fun deletePhoto(photo: InvoicePhoto)
+
+    fun delete(invoiceId: String)
+
+    /** Forgets all invoices, photos and the draft — on sign-out. */
+    fun clear()
 }
 
-class MockInvoiceRepository : InvoiceRepository {
+class DefaultInvoiceRepository(
+    private val store: KeyValueStore,
+    private val photos: PhotoStore,
+    private val json: Json,
+    private val scope: CoroutineScope,
+    private val clock: Clock = Clock.System,
+    private val timeZone: TimeZone = TimeZone.currentSystemDefault(),
+) : InvoiceRepository {
+
     private val _invoices = MutableStateFlow(
-        listOf(
-            Invoice(
-                id = "inv-1",
-                merchantName = "Continente",
-                documentType = "Fatura-Recibo (FR)",
-                documentNumber = "FS 2026/004821",
-                date = "18/09/2026",
-                atcud = "AAJFJMM9-4821",
-                nifEmitente = "500 100 200",
-                nifAdquirente = "999 999 990",
-                taxBase = 14.98,
-                vat = 3.44,
-                total = 18.42,
-                status = InvoiceStatus.SYNCED,
-                scannedAtLabel = "Today · 14:32",
-                destinationSpreadsheetName = "Despesas 2026",
-            ),
-            Invoice(
-                id = "inv-2",
-                merchantName = "Worten",
-                documentType = "Fatura-Recibo (FR)",
-                documentNumber = "FS 2026/018832",
-                date = "17/09/2026",
-                atcud = "AAJFJMM9-1883",
-                nifEmitente = "502 233 445",
-                nifAdquirente = "999 999 990",
-                taxBase = 105.69,
-                vat = 24.30,
-                total = 129.99,
-                status = InvoiceStatus.SYNCED,
-                scannedAtLabel = "Yesterday · 18:05",
-                destinationSpreadsheetName = "Despesas 2026",
-            ),
-            Invoice(
-                id = "inv-3",
-                merchantName = "CTT",
-                documentType = "Fatura (FT)",
-                documentNumber = "FT 2026/002211",
-                date = "17/09/2026",
-                atcud = "AAJFJMM9-2211",
-                nifEmitente = "500 830 024",
-                nifAdquirente = "999 999 990",
-                taxBase = 5.28,
-                vat = 1.22,
-                total = 6.50,
-                status = InvoiceStatus.NEEDS_REVIEW,
-                scannedAtLabel = "Yesterday · 09:14",
-                destinationSpreadsheetName = "Despesas 2026",
-            ),
-            Invoice(
-                id = "inv-4",
-                merchantName = "Galp",
-                documentType = "Fatura-Recibo (FR)",
-                documentNumber = "FS 2026/077310",
-                date = "14/09/2026",
-                atcud = "AAJFJMM9-7731",
-                nifEmitente = "500 011 016",
-                nifAdquirente = "999 999 990",
-                taxBase = 42.36,
-                vat = 9.74,
-                total = 52.10,
-                status = InvoiceStatus.SYNCED,
-                scannedAtLabel = "Mon · Despesas 2026",
-                destinationSpreadsheetName = "Despesas 2026",
-            ),
-            Invoice(
-                id = "inv-5",
-                merchantName = "Pingo Doce",
-                documentType = "Fatura-Recibo (FR)",
-                documentNumber = "FS 2026/055120",
-                date = "14/09/2026",
-                atcud = "AAJFJMM9-5512",
-                nifEmitente = "501 532 089",
-                nifAdquirente = "999 999 990",
-                taxBase = 28.35,
-                vat = 6.52,
-                total = 34.87,
-                status = InvoiceStatus.SYNCED,
-                scannedAtLabel = "Mon · Contabilidade PT",
-                destinationSpreadsheetName = "Contabilidade PT",
-            ),
-            Invoice(
-                id = "inv-6",
-                merchantName = "Fnac",
-                documentType = "Fatura-Recibo (FR)",
-                documentNumber = "FS 2026/009943",
-                date = "13/09/2026",
-                atcud = "AAJFJMM9-0994",
-                nifEmitente = "503 233 987",
-                nifAdquirente = "999 999 990",
-                taxBase = 72.36,
-                vat = 16.64,
-                total = 89.00,
-                status = InvoiceStatus.FAILED,
-                scannedAtLabel = "Sun · Despesas 2026",
-                destinationSpreadsheetName = "Despesas 2026",
-            ),
-        )
+        store.getString(KEY_INVOICES)?.let { runCatching { json.decodeFromString<List<Invoice>>(it) }.getOrNull() }.orEmpty()
     )
     override val invoices: StateFlow<List<Invoice>> = _invoices.asStateFlow()
 
     private val _draftInvoice = MutableStateFlow<Invoice?>(null)
     override val draftInvoice: StateFlow<Invoice?> = _draftInvoice.asStateFlow()
 
-    override fun addInvoice(invoice: Invoice) {
-        _invoices.value = listOf(invoice) + _invoices.value
+    override fun startDraftFromQr(payload: String): QrParseResult {
+        val result = AtQrCodeParser.parse(payload)
+        if (result is QrParseResult.Success) {
+            val data = result.data
+            replaceDraft(
+                Invoice(
+                    id = Uuid.random().toString(),
+                    merchantName = knownMerchantName(data.nifEmitente).orEmpty(),
+                    documentType = data.documentType,
+                    documentNumber = data.documentNumber,
+                    issueDate = data.issueDate,
+                    atcud = data.atcud,
+                    nifEmitente = data.nifEmitente,
+                    nifAdquirente = data.nifAdquirente,
+                    taxBase = data.taxBase,
+                    vat = data.vat,
+                    total = data.total,
+                    status = InvoiceStatus.QUEUED,
+                    scannedAtEpochMillis = clock.now().toEpochMilliseconds(),
+                    rawQr = payload.trim(),
+                    warnings = result.warnings,
+                )
+            )
+        }
+        return result
     }
 
-    override fun lastScanned(): Invoice? = _invoices.value.firstOrNull()
-
-    override fun startDraftFromScan(): Invoice {
-        // A real QR decode reads the AT Portugal ATCUD payload off the camera frame; this mock
-        // stands in for that until the camera pipeline is wired up (see ScanScreen).
-        val draft = Invoice(
-            id = "inv-${_invoices.value.size + _draftCounter++}",
-            merchantName = "Continente",
-            documentType = "Fatura-Recibo (FR)",
-            documentNumber = "FS 2026/004821",
-            date = "18/09/2026",
-            atcud = "AAJFJMM9-4821",
-            nifEmitente = "500 100 200",
-            nifAdquirente = "999 999 990",
-            taxBase = 14.98,
-            vat = 3.44,
-            total = 18.42,
-            status = InvoiceStatus.NEEDS_REVIEW,
-            scannedAtLabel = "Just now",
-            destinationSpreadsheetName = null,
+    override fun startManualDraft() {
+        replaceDraft(
+            Invoice(
+                id = Uuid.random().toString(),
+                merchantName = "",
+                documentType = "FT",
+                documentNumber = "",
+                issueDate = clock.now().toLocalDateTime(timeZone).date,
+                atcud = "",
+                nifEmitente = "",
+                nifAdquirente = "",
+                taxBase = 0.0,
+                vat = 0.0,
+                total = 0.0,
+                status = InvoiceStatus.QUEUED,
+                scannedAtEpochMillis = clock.now().toEpochMilliseconds(),
+            )
         )
-        _draftInvoice.value = draft
-        return draft
     }
 
     override fun updateDraft(invoice: Invoice) {
         _draftInvoice.value = invoice
     }
 
-    override fun commitDraft(destinationSpreadsheetName: String): Invoice? {
-        val draft = _draftInvoice.value ?: return null
-        val saved = draft.copy(status = InvoiceStatus.SYNCED, destinationSpreadsheetName = destinationSpreadsheetName)
-        addInvoice(saved)
-        _draftInvoice.value = null
-        return saved
+    override suspend fun attachPhoto(bytes: ByteArray, mimeType: String) {
+        val key = photos.save(bytes)
+        val draft = _draftInvoice.value
+        if (draft == null) {
+            photos.delete(key)
+            return
+        }
+        draft.photo?.let(::deletePhoto)
+        _draftInvoice.value = draft.copy(photo = InvoicePhoto(key, mimeType))
     }
 
-    private var _draftCounter = 100
+    override fun removeDraftPhoto() {
+        _draftInvoice.update { draft -> draft?.photo?.let(::deletePhoto); draft?.copy(photo = null) }
+    }
+
+    override suspend fun loadPhoto(photo: InvoicePhoto): ByteArray? = photos.load(photo.key)
+
+    override fun discardDraft() = replaceDraft(null)
+
+    override fun submitDraft(spreadsheet: DriveItem, folder: DriveItem): Invoice? {
+        val draft = _draftInvoice.value ?: return null
+        val queued = draft.copy(
+            merchantName = draft.merchantName.trim(),
+            warnings = InvoiceValidator.allWarnings(draft, draft.warnings),
+            status = InvoiceStatus.QUEUED,
+            destinationSpreadsheetId = spreadsheet.id,
+            destinationSpreadsheetName = spreadsheet.name,
+            destinationFolderId = folder.id,
+            destinationFolderName = folder.name,
+            attempts = 0,
+            nextAttemptAtEpochMillis = 0,
+            errorMessage = null,
+        )
+        _draftInvoice.value = null // The photo now belongs to the queued invoice; don't delete it.
+        var list = _invoices.value
+        if (queued.atcud.isNotBlank()) {
+            // A re-scan of a document that failed before replaces the stale failure.
+            list = list.filterNot { old ->
+                val stale = old.status == InvoiceStatus.FAILED && old.atcud == queued.atcud && old.nifEmitente == queued.nifEmitente
+                if (stale) old.photo?.let(::deletePhoto)
+                stale
+            }
+        }
+        setInvoices(listOf(queued) + list)
+        return queued
+    }
+
+    override fun update(invoice: Invoice) {
+        val list = _invoices.value
+        val index = list.indexOfFirst { it.id == invoice.id }
+        if (index >= 0) setInvoices(list.toMutableList().also { it[index] = invoice })
+    }
+
+    override fun deletePhoto(photo: InvoicePhoto) {
+        scope.launch { photos.delete(photo.key) }
+    }
+
+    override fun delete(invoiceId: String) {
+        _invoices.value.firstOrNull { it.id == invoiceId }?.photo?.let(::deletePhoto)
+        setInvoices(_invoices.value.filterNot { it.id == invoiceId })
+    }
+
+    override fun clear() {
+        replaceDraft(null)
+        _invoices.value.mapNotNull { it.photo }.forEach(::deletePhoto)
+        setInvoices(emptyList())
+    }
+
+    private fun replaceDraft(invoice: Invoice?) {
+        _draftInvoice.value?.photo?.let(::deletePhoto)
+        _draftInvoice.value = invoice
+    }
+
+    private fun knownMerchantName(nif: String): String? =
+        _invoices.value.firstOrNull { it.nifEmitente == nif && it.merchantName.isNotBlank() }?.merchantName
+
+    private fun setInvoices(list: List<Invoice>) {
+        _invoices.value = list
+        store.putString(KEY_INVOICES, json.encodeToString(list))
+    }
 }

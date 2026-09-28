@@ -7,7 +7,7 @@ import org.neteinstein.snap2sheet.di.initKoin
 class Snap2SheetApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        AndroidAppContext.instance = this
+        AndroidAppContext.init(this)
         initKoin()
     }
 }

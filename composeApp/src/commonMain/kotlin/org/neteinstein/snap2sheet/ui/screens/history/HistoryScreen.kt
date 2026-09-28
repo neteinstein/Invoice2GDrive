@@ -19,22 +19,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import org.neteinstein.snap2sheet.domain.model.Invoice
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
+import org.neteinstein.snap2sheet.ui.components.InvoiceDetailSheet
 import org.neteinstein.snap2sheet.ui.components.InvoiceRow
 import org.neteinstein.snap2sheet.ui.components.SectionTitle
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
-
-private sealed class HistoryRow {
-    data class Header(val label: String) : HistoryRow()
-    data class Item(val invoice: Invoice) : HistoryRow()
-}
 
 @Composable
 fun HistoryScreen(
@@ -56,41 +50,41 @@ fun HistoryScreen(
             }
         }
 
-        val rows = remember(state.invoices) { groupIntoRows(state.invoices) }
+        if (state.isEmpty) {
+            Text(
+                if (state.filter == HistoryFilter.ALL) "No invoices yet. Scan one from Home." else "Nothing here.",
+                style = MaterialTheme.typography.bodySmall,
+                color = FaturaColors.Muted,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
+            )
+        }
 
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items(rows) { row ->
+            items(state.rows) { row ->
                 when (row) {
                     is HistoryRow.Header -> Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
                         SectionTitle(text = row.label)
                     }
                     is HistoryRow.Item -> Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
-                        InvoiceRow(invoice = row.invoice)
+                        InvoiceRow(
+                            invoice = row.item.invoice,
+                            subtitle = row.item.subtitle,
+                            onClick = { viewModel.actions.open(row.item.invoice.id) },
+                        )
                     }
                 }
             }
         }
     }
-}
 
-private fun groupIntoRows(invoices: List<Invoice>): List<HistoryRow> {
-    val rows = mutableListOf<HistoryRow>()
-    var lastGroup: String? = null
-    for (invoice in invoices) {
-        val group = groupLabelFor(invoice.scannedAtLabel)
-        if (group != lastGroup) {
-            rows += HistoryRow.Header(group)
-            lastGroup = group
-        }
-        rows += HistoryRow.Item(invoice)
+    state.openInvoice?.let { invoice ->
+        InvoiceDetailSheet(
+            invoice = invoice,
+            onRetry = { viewModel.actions.retry(invoice.id) },
+            onDelete = { viewModel.actions.delete(invoice.id) },
+            onDismiss = viewModel.actions::close,
+        )
     }
-    return rows
-}
-
-private fun groupLabelFor(scannedAtLabel: String): String = when {
-    scannedAtLabel.startsWith("Today") || scannedAtLabel.startsWith("Just now") -> "Today"
-    scannedAtLabel.startsWith("Yesterday") -> "Yesterday"
-    else -> "This week"
 }
 
 @Composable
