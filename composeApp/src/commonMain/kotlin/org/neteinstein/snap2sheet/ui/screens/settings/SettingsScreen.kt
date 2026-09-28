@@ -30,6 +30,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
+import org.neteinstein.snap2sheet.platform.PermissionStatus
+import org.neteinstein.snap2sheet.platform.rememberCameraPermissionState
+import org.neteinstein.snap2sheet.platform.rememberNotificationPermissionState
 import org.neteinstein.snap2sheet.ui.components.FaturaCard
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
@@ -40,10 +43,13 @@ import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    onChangeDefaultSpreadsheet: () -> Unit,
+    onChangeDefaults: () -> Unit,
     viewModel: SettingsViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val cameraPermission = rememberCameraPermissionState()
+    val notificationPermission = rememberNotificationPermissionState()
+    val isDemo = state.account?.isDemo == true
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface).navigationBarsPadding()) {
         FaturaTopBar(title = "Settings", onBack = onBack)
@@ -52,7 +58,11 @@ fun SettingsScreen(
             item {
                 SettingsSection(title = "Account") {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f),
+                        ) {
                             Box(
                                 modifier = Modifier.size(40.dp).clip(CircleShape).background(FaturaColors.AccentSoft),
                                 contentAlignment = Alignment.Center,
@@ -69,9 +79,13 @@ fun SettingsScreen(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                                 Text(
-                                    if (state.account != null) "Connected" else "Disconnected",
+                                    when {
+                                        state.account == null -> "Disconnected"
+                                        isDemo -> "Demo mode · nothing leaves this device"
+                                        else -> "Connected"
+                                    },
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = if (state.account != null) FaturaColors.Success else FaturaColors.Muted,
+                                    color = if (state.account != null && !isDemo) FaturaColors.Success else FaturaColors.Muted,
                                 )
                             }
                         }
@@ -82,27 +96,47 @@ fun SettingsScreen(
                             modifier = Modifier.clickable(onClick = viewModel::signOut),
                         )
                     }
+                    if (state.account != null && !isDemo) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                "Saves failing with a sign-in error?",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = FaturaColors.Muted,
+                                modifier = Modifier.weight(1f),
+                            )
+                            Text(
+                                if (state.isReconnecting) "Reconnecting…" else "Reconnect",
+                                style = MaterialTheme.typography.labelMedium,
+                                color = FaturaColors.Accent,
+                                modifier = if (state.isReconnecting) Modifier else Modifier.clickable(onClick = viewModel::reconnect),
+                            )
+                        }
+                    }
+                    Text(
+                        "Signing out removes this device's invoice history. Your spreadsheets are untouched.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = FaturaColors.MutedStrong,
+                        modifier = Modifier.padding(top = 6.dp, bottom = 4.dp),
+                    )
                 }
             }
 
             item {
-                SettingsSection(title = "Default Spreadsheet") {
-                    Row(
-                        modifier = Modifier.fillMaxWidth().clickable(onClick = onChangeDefaultSpreadsheet),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            IconBadge(size = 36.dp) { FaturaIcons.Document(tint = FaturaColors.Accent, size = 18.dp) }
-                            Text(
-                                state.defaultSpreadsheetName ?: "None selected",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = FaturaColors.Ink,
-                            )
-                        }
-                        Text("Change", style = MaterialTheme.typography.labelMedium, color = FaturaColors.Accent)
-                    }
+                SettingsSection(title = "Defaults") {
+                    DefaultRow(
+                        label = "SPREADSHEET",
+                        value = state.defaultSpreadsheetName,
+                        onClick = onChangeDefaults,
+                    ) { FaturaIcons.Document(tint = FaturaColors.Accent, size = 18.dp) }
+                    DefaultRow(
+                        label = "DRIVE FOLDER FOR PHOTOS",
+                        value = state.defaultFolderName,
+                        onClick = onChangeDefaults,
+                    ) { FaturaIcons.Folder(tint = FaturaColors.Accent, size = 18.dp) }
                 }
             }
 
@@ -131,18 +165,59 @@ fun SettingsScreen(
 
             item {
                 SettingsSection(title = "Permissions") {
-                    PermissionRow(label = "Camera") { FaturaIcons.Camera(tint = FaturaColors.Muted, size = 17.dp) }
-                    PermissionRow(label = "Google Sheets access") { FaturaIcons.Document(tint = FaturaColors.Muted, size = 17.dp) }
+                    val camera = cameraPermission.status
+                    PermissionRow(
+                        label = "Camera",
+                        value = when (camera) {
+                            PermissionStatus.GRANTED -> "Allowed"
+                            PermissionStatus.DENIED -> if (cameraPermission.canOpenSettings) "Denied · Open settings" else "Blocked in browser"
+                            PermissionStatus.NOT_DETERMINED -> "Not asked · Allow"
+                        },
+                        allowed = camera == PermissionStatus.GRANTED,
+                        onClick = when (camera) {
+                            PermissionStatus.GRANTED -> null
+                            PermissionStatus.DENIED -> if (cameraPermission.canOpenSettings) cameraPermission::openSettings else null
+                            PermissionStatus.NOT_DETERMINED -> cameraPermission::request
+                        },
+                    ) { FaturaIcons.Camera(tint = FaturaColors.Muted, size = 17.dp) }
+                    val notifications = notificationPermission.status
+                    PermissionRow(
+                        label = "Notifications",
+                        value = when (notifications) {
+                            PermissionStatus.GRANTED -> "Allowed"
+                            PermissionStatus.DENIED -> if (notificationPermission.canOpenSettings) "Denied · Open settings" else "Blocked in browser"
+                            PermissionStatus.NOT_DETERMINED -> "Not asked · Allow"
+                        },
+                        allowed = notifications == PermissionStatus.GRANTED,
+                        onClick = when (notifications) {
+                            PermissionStatus.GRANTED -> null
+                            PermissionStatus.DENIED -> if (notificationPermission.canOpenSettings) notificationPermission::openSettings else null
+                            PermissionStatus.NOT_DETERMINED -> notificationPermission::request
+                        },
+                    ) { FaturaIcons.Clock(tint = FaturaColors.Muted, size = 17.dp) }
+                    PermissionRow(
+                        label = "Google Sheets & Drive",
+                        value = when {
+                            state.account == null -> "Not connected"
+                            isDemo -> "Demo mode"
+                            else -> "Allowed"
+                        },
+                        allowed = state.account != null && !isDemo,
+                        onClick = null,
+                    ) { FaturaIcons.Document(tint = FaturaColors.Muted, size = 17.dp) }
                 }
             }
 
             item {
                 SettingsSection(title = "Notifications") {
                     SettingsSwitchRow(
-                        title = "Notify me if a scan fails",
-                        subtitle = "Push notification when a save doesn't go through",
-                        checked = state.notifyOnScanFailure,
-                        onCheckedChange = viewModel::setNotifyOnScanFailure,
+                        title = "Notify me when a save finishes",
+                        subtitle = "Invoices save in the background — get a notification when each one is done, or fails",
+                        checked = state.notifyWhenSaveFinishes,
+                        onCheckedChange = { enabled ->
+                            viewModel.setNotifyWhenSaveFinishes(enabled)
+                            if (enabled && notificationPermission.status == PermissionStatus.NOT_DETERMINED) notificationPermission.request()
+                        },
                     )
                 }
             }
@@ -185,9 +260,12 @@ private fun SettingsSwitchRow(title: String, subtitle: String, checked: Boolean,
 }
 
 @Composable
-private fun PermissionRow(label: String, icon: @Composable () -> Unit) {
+private fun PermissionRow(label: String, value: String, allowed: Boolean, onClick: (() -> Unit)?, icon: @Composable () -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 11.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier)
+            .padding(vertical = 11.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -195,6 +273,29 @@ private fun PermissionRow(label: String, icon: @Composable () -> Unit) {
             icon()
             Text(label, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
         }
-        Text("Allowed", style = MaterialTheme.typography.labelSmall, color = FaturaColors.Success)
+        Text(value, style = MaterialTheme.typography.labelSmall, color = if (allowed) FaturaColors.Success else if (onClick != null) FaturaColors.Accent else FaturaColors.Muted)
+    }
+}
+
+@Composable
+private fun DefaultRow(label: String, value: String?, onClick: () -> Unit, icon: @Composable () -> Unit) {
+    Row(
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconBadge(size = 36.dp) { icon() }
+        Column(modifier = Modifier.weight(1f)) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
+            Text(
+                value ?: "None selected",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = FaturaColors.Ink,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        Text("Change", style = MaterialTheme.typography.labelMedium, color = FaturaColors.Accent)
     }
 }

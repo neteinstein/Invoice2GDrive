@@ -21,30 +21,36 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import org.neteinstein.snap2sheet.permission.PermissionStatus
-import org.neteinstein.snap2sheet.permission.rememberCameraPermissionState
 import org.neteinstein.snap2sheet.ui.components.FaturaCard
 import org.neteinstein.snap2sheet.ui.components.FaturaGhostButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
+import org.neteinstein.snap2sheet.platform.PermissionStatus
+import org.neteinstein.snap2sheet.platform.rememberCameraPermissionState
+import org.neteinstein.snap2sheet.platform.rememberNotificationPermissionState
 import org.neteinstein.snap2sheet.ui.components.IconBadge
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 
 @Composable
 fun WelcomeScreen(onContinue: () -> Unit) {
     val cameraPermission = rememberCameraPermissionState()
+    val notificationPermission = rememberNotificationPermissionState()
+    var requested by remember { mutableStateOf(false) }
 
-    // Once the OS prompt has been answered (granted or denied), move on — camera access is
-    // requested up front but isn't required to keep browsing the rest of onboarding.
-    LaunchedEffect(cameraPermission.status) {
-        if (cameraPermission.status != PermissionStatus.NotDetermined) {
-            onContinue()
-        }
+    // Ask for the camera, then notifications, then move on — once each prompt has been answered,
+    // whichever way.
+    LaunchedEffect(requested, cameraPermission.status, notificationPermission.status) {
+        if (!requested || cameraPermission.status == PermissionStatus.NOT_DETERMINED) return@LaunchedEffect
+        if (notificationPermission.status == PermissionStatus.NOT_DETERMINED) notificationPermission.request() else onContinue()
     }
 
     Column(
@@ -93,9 +99,10 @@ fun WelcomeScreen(onContinue: () -> Unit) {
                         FaturaIcons.Camera(tint = FaturaColors.Accent, size = 20.dp)
                     }
                     Column {
-                        Text("Camera access", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
+                        Text("Camera & notifications", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
                         Text(
-                            "Needed to scan invoice QR codes. Photos are never stored or uploaded.",
+                            "The camera reads the QR code and photographs the invoice, which goes only to your own Google Drive. " +
+                                "Notifications tell you when an invoice has finished saving.",
                             style = MaterialTheme.typography.bodySmall,
                             color = FaturaColors.Muted,
                         )
@@ -104,8 +111,18 @@ fun WelcomeScreen(onContinue: () -> Unit) {
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                FaturaPrimaryButton(text = "Enable Camera Access", onClick = { cameraPermission.request() })
-                FaturaGhostButton(text = "Not now", onClick = onContinue)
+                if (cameraPermission.status == PermissionStatus.GRANTED && notificationPermission.status != PermissionStatus.NOT_DETERMINED) {
+                    FaturaPrimaryButton(text = "Continue", onClick = onContinue)
+                } else {
+                    FaturaPrimaryButton(
+                        text = "Allow Camera & Notifications",
+                        onClick = {
+                            requested = true
+                            if (cameraPermission.status == PermissionStatus.NOT_DETERMINED) cameraPermission.request()
+                        },
+                    )
+                    FaturaGhostButton(text = "Not now", onClick = onContinue)
+                }
             }
 
             Row(

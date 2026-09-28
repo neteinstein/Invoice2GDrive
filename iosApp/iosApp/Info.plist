@@ -6,19 +6,5 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Fatura needs camera access to scan invoice QR codes. Photos are never stored or uploaded.</string>
-	<!--
-	  Google Sign-In redirect URL scheme, required by the GoogleSignIn-iOS SDK. Replace
-	  YOUR_IOS_CLIENT_ID below with the part of GoogleAuthConfig.IOS_CLIENT_ID that comes before
-	  ".apps.googleusercontent.com" once a real iOS OAuth client ID is registered.
-	-->
-	<key>CFBundleURLTypes</key>
-	<array>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>com.googleusercontent.apps.YOUR_IOS_CLIENT_ID</string>
-			</array>
-		</dict>
-	</array>
 </dict>
 </plist>

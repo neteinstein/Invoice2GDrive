@@ -12,10 +12,15 @@ interface SettingsRepository {
     val appendRules: StateFlow<AppendRules>
     fun setAppendRules(rules: AppendRules)
 
-    /** "Always save here automatically", offered on the Destination screen. */
+    /** "Always save to my defaults": Review saves straight away instead of asking where. */
     val alwaysSaveToDefaultSpreadsheet: StateFlow<Boolean>
     fun setAlwaysSaveToDefaultSpreadsheet(enabled: Boolean)
 
-    val notifyOnScanFailure: StateFlow<Boolean>
-    fun setNotifyOnScanFailure(enabled: Boolean)
+    /** A notification when a background save finishes — saved, duplicate or failed. */
+    val notifyWhenSaveFinishes: StateFlow<Boolean>
+    fun setNotifyWhenSaveFinishes(enabled: Boolean)
+
+    /** Whether the Welcome screen has been dismissed once; decides the start screen. */
+    val onboardingCompleted: StateFlow<Boolean>
+    fun setOnboardingCompleted(completed: Boolean)
 }

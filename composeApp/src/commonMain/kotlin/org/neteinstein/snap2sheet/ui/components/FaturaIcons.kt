@@ -99,6 +99,26 @@ object FaturaIcons {
         }
     }
 
+    /** A Drive folder: body with a tab on the top-left. */
+    @Composable
+    fun Folder(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 20.dp) {
+        Canvas(modifier.size(size)) {
+            val stroke = Stroke(width = this.size.width * 0.09f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            val w = this.size.width
+            val h = this.size.height
+            val path = androidx.compose.ui.graphics.Path().apply {
+                moveTo(w * 0.12f, h * 0.26f)
+                lineTo(w * 0.40f, h * 0.26f)
+                lineTo(w * 0.48f, h * 0.36f)
+                lineTo(w * 0.88f, h * 0.36f)
+                lineTo(w * 0.88f, h * 0.80f)
+                lineTo(w * 0.12f, h * 0.80f)
+                close()
+            }
+            drawPath(path, color = tint, style = stroke)
+        }
+    }
+
     /** The four-square "scan grid" logo mark. */
     @Composable
     fun Grid(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 28.dp) {

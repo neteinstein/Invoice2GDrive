@@ -1,9 +1,14 @@
 package org.neteinstein.snap2sheet.domain.model
 
+import kotlinx.serialization.Serializable
+
 /** The Google account Fatura saves invoices on behalf of. */
+@Serializable
 data class GoogleAccount(
     val email: String,
     val initials: String,
+    /** A local-only demo account: spreadsheets live in memory and nothing reaches Google. */
+    val isDemo: Boolean = false,
 ) {
     companion object {
         /** Derives a 1-2 letter avatar label from a display name, falling back to the email. */

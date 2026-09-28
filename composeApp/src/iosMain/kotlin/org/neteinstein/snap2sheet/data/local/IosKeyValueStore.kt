@@ -10,6 +10,10 @@ private class IosKeyValueStore : KeyValueStore {
     override fun putString(key: String, value: String) {
         defaults.setObject(value, key)
     }
+
+    override fun remove(key: String) {
+        defaults.removeObjectForKey(key)
+    }
 }
 
 actual fun platformKeyValueStore(): KeyValueStore = IosKeyValueStore()

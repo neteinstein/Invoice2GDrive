@@ -10,8 +10,6 @@
 		A0A0A0A0A0A0A0A0A0A0A010 /* iOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A0A0A0A0A0A0A0A0A0A00C /* iOSApp.swift */; };
 		A0A0A0A0A0A0A0A0A0A0A011 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A0A0A0A0A0A0A0A0A0A00D /* ContentView.swift */; };
 		A0A0A0A0A0A0A0A0A0A0A012 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A0A0A0A0A0A0A0A0A0A0A00F /* Assets.xcassets */; };
-		A0A0A0A0A0A0A0A0A0A0A01A /* GoogleSignInBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0A0A0A0A0A0A0A0A0A0A019 /* GoogleSignInBridge.swift */; };
-		A0A0A0A0A0A0A0A0A0A0A01D /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = A0A0A0A0A0A0A0A0A0A0A01C /* GoogleSignIn */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -19,7 +17,6 @@
 		A0A0A0A0A0A0A0A0A0A0A00C /* iOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iOSApp.swift; sourceTree = "<group>"; };
 		A0A0A0A0A0A0A0A0A0A0A00D /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A0A0A0A0A0A0A0A0A0A0A00F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		A0A0A0A0A0A0A0A0A0A0A019 /* GoogleSignInBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleSignInBridge.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,7 +24,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A0A0A0A0A0A0A0A0A0A0A01D /* GoogleSignIn in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,7 +43,6 @@
 			children = (
 				A0A0A0A0A0A0A0A0A0A0A00C /* iOSApp.swift */,
 				A0A0A0A0A0A0A0A0A0A0A00D /* ContentView.swift */,
-				A0A0A0A0A0A0A0A0A0A0A019 /* GoogleSignInBridge.swift */,
 				A0A0A0A0A0A0A0A0A0A0A00F /* Assets.xcassets */,
 			);
 			path = iosApp;
@@ -78,9 +73,6 @@
 			dependencies = (
 			);
 			name = iosApp;
-			packageProductDependencies = (
-				A0A0A0A0A0A0A0A0A0A0A01C /* GoogleSignIn */,
-			);
 			productName = iosApp;
 			productReference = A0A0A0A0A0A0A0A0A0A0A003 /* iosApp.app */;
 			productType = "com.apple.product-type.application";
@@ -109,9 +101,6 @@
 				Base,
 			);
 			mainGroup = A0A0A0A0A0A0A0A0A0A0A004;
-			packageReferences = (
-				A0A0A0A0A0A0A0A0A0A0A01B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
-			);
 			productRefGroup = A0A0A0A0A0A0A0A0A0A0A006 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -162,7 +151,6 @@
 			files = (
 				A0A0A0A0A0A0A0A0A0A0A010 /* iOSApp.swift in Sources */,
 				A0A0A0A0A0A0A0A0A0A0A011 /* ContentView.swift in Sources */,
-				A0A0A0A0A0A0A0A0A0A0A01A /* GoogleSignInBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -378,25 +366,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		A0A0A0A0A0A0A0A0A0A0A01B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 10.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		A0A0A0A0A0A0A0A0A0A0A01C /* GoogleSignIn */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = A0A0A0A0A0A0A0A0A0A0A01B /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
-			productName = GoogleSignIn;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A0A0A0A0A0A0A0A0A0A0A001 /* Project object */;
 }
