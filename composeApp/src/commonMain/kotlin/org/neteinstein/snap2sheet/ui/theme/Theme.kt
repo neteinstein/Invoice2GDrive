@@ -1,6 +1,5 @@
 package org.neteinstein.snap2sheet.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -14,6 +13,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.neteinstein.snap2sheet.domain.model.AppTheme
+import org.neteinstein.snap2sheet.platform.systemPrefersDark
 
 /**
  * The design pairs three Google Fonts: Space Grotesk (headings/wordmark), Manrope (body/UI) and
@@ -71,7 +71,7 @@ fun FaturaTheme(
     val darkTheme = when (theme) {
         AppTheme.LIGHT -> false
         AppTheme.DARK -> true
-        AppTheme.SYSTEM -> isSystemInDarkTheme()
+        AppTheme.SYSTEM -> systemPrefersDark()
     }
     val palette = if (darkTheme) DarkPalette else LightPalette
 
