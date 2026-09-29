@@ -309,6 +309,7 @@ private fun FieldRow(
 /** Drawn rather than a "✓" glyph, which the web build's bundled font doesn't have. */
 @Composable
 private fun CheckMark() {
+    val success = FaturaColors.Success
     androidx.compose.foundation.Canvas(Modifier.size(12.dp)) {
         val path = androidx.compose.ui.graphics.Path().apply {
             moveTo(size.width * 0.1f, size.height * 0.55f)
@@ -317,7 +318,7 @@ private fun CheckMark() {
         }
         drawPath(
             path,
-            color = FaturaColors.Success,
+            color = success,
             style = androidx.compose.ui.graphics.drawscope.Stroke(
                 width = size.width * 0.18f,
                 cap = androidx.compose.ui.graphics.StrokeCap.Round,

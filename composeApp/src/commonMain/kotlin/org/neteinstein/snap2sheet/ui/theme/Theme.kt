@@ -1,11 +1,13 @@
 package org.neteinstein.snap2sheet.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -40,41 +42,26 @@ private val FaturaTypography = Typography(
     labelSmall = TextStyle(fontFamily = FaturaFonts.Body, fontWeight = FontWeight.Bold, fontSize = 11.sp),
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = FaturaColors.Accent,
-    onPrimary = FaturaColors.Surface,
-    primaryContainer = FaturaColors.AccentSoft,
-    onPrimaryContainer = FaturaColors.Accent,
-    secondary = FaturaColors.Success,
-    background = FaturaColors.Background,
-    onBackground = FaturaColors.Ink,
-    surface = FaturaColors.Surface,
-    onSurface = FaturaColors.Ink,
-    surfaceVariant = FaturaColors.SurfaceMuted,
-    onSurfaceVariant = FaturaColors.Muted,
-    outline = FaturaColors.Border,
-    outlineVariant = FaturaColors.Divider,
-    error = FaturaColors.Danger,
-    errorContainer = FaturaColors.DangerSoft,
-)
-
-private val DarkColorScheme = darkColorScheme(
-    primary = FaturaColors.Accent,
-    onPrimary = FaturaColors.Surface,
-    primaryContainer = Color(0xFF1B2A44),
-    onPrimaryContainer = Color(0xFFAFC6EE),
-    secondary = FaturaColors.Success,
-    background = Color(0xFF101215),
-    onBackground = Color(0xFFE7E9ED),
-    surface = Color(0xFF181B20),
-    onSurface = Color(0xFFE7E9ED),
-    surfaceVariant = Color(0xFF20242B),
-    onSurfaceVariant = Color(0xFFA6ACB8),
-    outline = Color(0xFF31363F),
-    outlineVariant = Color(0xFF262A31),
-    error = FaturaColors.Danger,
-    errorContainer = Color(0xFF3A1A17),
-)
+private fun FaturaPalette.toColorScheme(dark: Boolean): ColorScheme {
+    val base = if (dark) darkColorScheme() else lightColorScheme()
+    return base.copy(
+        primary = accent,
+        onPrimary = if (dark) Color(0xFF0B1220) else surface,
+        primaryContainer = accentSoft,
+        onPrimaryContainer = accent,
+        secondary = success,
+        background = background,
+        onBackground = ink,
+        surface = surface,
+        onSurface = ink,
+        surfaceVariant = surfaceMuted,
+        onSurfaceVariant = muted,
+        outline = border,
+        outlineVariant = divider,
+        error = danger,
+        errorContainer = dangerSoft,
+    )
+}
 
 @Composable
 fun FaturaTheme(
@@ -86,11 +73,13 @@ fun FaturaTheme(
         AppTheme.DARK -> true
         AppTheme.SYSTEM -> isSystemInDarkTheme()
     }
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val palette = if (darkTheme) DarkPalette else LightPalette
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = FaturaTypography,
-        content = content
-    )
+    CompositionLocalProvider(LocalFaturaPalette provides palette) {
+        MaterialTheme(
+            colorScheme = palette.toColorScheme(darkTheme),
+            typography = FaturaTypography,
+            content = content
+        )
+    }
 }
