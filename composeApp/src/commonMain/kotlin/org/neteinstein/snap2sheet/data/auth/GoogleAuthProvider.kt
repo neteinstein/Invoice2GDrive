@@ -30,7 +30,7 @@ class NotSignedInException(message: String = "Your Google session expired. Sign 
  * client. See `GoogleClientConfig` for how the OAuth client IDs get into the build.
  */
 interface GoogleAuthProvider {
-    /** False when this build has no OAuth client configured for the platform — only demo mode is offered then. */
+    /** False when this build has no OAuth client configured for the platform. */
     val isConfigured: Boolean
 
     /** Runs the interactive flow (consent screen, account picker) and returns an access token. */

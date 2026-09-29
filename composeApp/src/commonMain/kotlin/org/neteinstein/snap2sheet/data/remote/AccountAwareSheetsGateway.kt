@@ -4,18 +4,18 @@ import org.neteinstein.snap2sheet.data.repository.AccountRepository
 import org.neteinstein.snap2sheet.domain.model.AppendRules
 import org.neteinstein.snap2sheet.domain.model.Invoice
 
-/** Routes to [demo] while the signed-in account is a demo account, to [google] otherwise. */
+/** Delegates to [google], failing with NOT_SIGNED_IN while no account is signed in. */
 class AccountAwareSheetsGateway(
     private val accounts: AccountRepository,
     private val google: SheetsGateway,
-    private val demo: SheetsGateway,
 ) : SheetsGateway {
 
     private val current: SheetsGateway
         get() {
-            val account = accounts.account.value
-                ?: throw SheetsException("Sign in to Google first.", SheetsException.Kind.NOT_SIGNED_IN)
-            return if (account.isDemo) demo else google
+            if (accounts.account.value == null) {
+                throw SheetsException("Sign in to Google first.", SheetsException.Kind.NOT_SIGNED_IN)
+            }
+            return google
         }
 
     override suspend fun listSpreadsheets() = current.listSpreadsheets()

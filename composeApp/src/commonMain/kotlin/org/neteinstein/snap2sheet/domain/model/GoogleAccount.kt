@@ -7,8 +7,6 @@ import kotlinx.serialization.Serializable
 data class GoogleAccount(
     val email: String,
     val initials: String,
-    /** A local-only demo account: spreadsheets live in memory and nothing reaches Google. */
-    val isDemo: Boolean = false,
 ) {
     companion object {
         /** Derives a 1-2 letter avatar label from a display name, falling back to the email. */

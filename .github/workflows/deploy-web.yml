@@ -29,7 +29,7 @@ jobs:
 
       - name: Build wasmJs web distribution
         # The OAuth client ID isn't a secret (it ships in the page), so it lives in a repository
-        # variable. Without it the site builds in demo-only mode.
+        # variable. Without it sign-in is unavailable.
         env:
           GOOGLE_WEB_CLIENT_ID: ${{ vars.GOOGLE_WEB_CLIENT_ID }}
         run: ./gradlew :composeApp:wasmJsBrowserDistribution

@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import org.neteinstein.snap2sheet.ui.components.FaturaGhostButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.Notice
 import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
@@ -95,18 +94,14 @@ fun SignInScreen(
                 ) {
                     GoogleGlyph()
                 }
-                Spacer(Modifier.height(4.dp))
-                FaturaGhostButton(text = "Try it without an account", onClick = viewModel::startDemo)
             } else {
                 Text(
-                    "Google sign-in isn't set up in this build, so Fatura runs in demo mode: spreadsheets are simulated on this device.",
+                    "Google sign-in isn't set up in this build.",
                     style = MaterialTheme.typography.bodySmall,
                     color = FaturaColors.Muted,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Spacer(Modifier.height(12.dp))
-                FaturaPrimaryButton(text = "Try the demo", onClick = viewModel::startDemo)
             }
         }
 

@@ -43,11 +43,6 @@ class SignInViewModel(
         }
     }
 
-    fun startDemo() {
-        accountRepository.startDemo()
-        viewModelScope.launch { onSignedIn() }
-    }
-
     private suspend fun onSignedIn() {
         // Signing out clears history and Drive lists, so there's nothing from another account here.
         // Warm the lists up for the setup screen that follows.

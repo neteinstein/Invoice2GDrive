@@ -53,7 +53,7 @@ enum class InvoiceColumn(val defaultHeader: String, vararg aliases: String) {
 /**
  * How an [Invoice] becomes a spreadsheet row — which tab it goes to, what the header row is, and
  * which cell holds which field. Kept free of any HTTP so it's shared by the Google Sheets and the
- * demo gateways and unit-tested on its own.
+ * gateway and unit-tested on its own.
  */
 object InvoiceSheetLayout {
 
