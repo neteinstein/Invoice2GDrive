@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.components
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,10 +61,10 @@ fun InvoiceDetailSheet(
                     Text(invoice.displayName(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
                     Text(
                         when (invoice.status) {
-                            InvoiceStatus.QUEUED -> "Saving to ${invoice.destinationSpreadsheetName} in the background…"
-                            InvoiceStatus.DUPLICATE -> "Already in ${invoice.destinationSpreadsheetName} — skipped"
-                            InvoiceStatus.FAILED -> "Not saved to ${invoice.destinationSpreadsheetName}"
-                            else -> "Saved to ${invoice.destinationSpreadsheetName}"
+                            InvoiceStatus.QUEUED -> tr("Saving to ${invoice.destinationSpreadsheetName} in the background…", "A guardar em ${invoice.destinationSpreadsheetName} em segundo plano…")
+                            InvoiceStatus.DUPLICATE -> tr("Already in ${invoice.destinationSpreadsheetName} — skipped", "Já existe em ${invoice.destinationSpreadsheetName} — ignorada")
+                            InvoiceStatus.FAILED -> tr("Not saved to ${invoice.destinationSpreadsheetName}", "Não guardada em ${invoice.destinationSpreadsheetName}")
+                            else -> tr("Saved to ${invoice.destinationSpreadsheetName}", "Guardada em ${invoice.destinationSpreadsheetName}")
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = FaturaColors.Muted,
@@ -105,12 +107,12 @@ fun InvoiceDetailSheet(
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     FaturaIcons.Folder(tint = FaturaColors.Accent, size = 18.dp)
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("PHOTO", style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
+                        Text(tr("PHOTO", "FOTO"), style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
                         Text(
                             when {
-                                link != null -> "In ${invoice.destinationFolderName}"
-                                invoice.photo != null -> "Waiting to upload to ${invoice.destinationFolderName}"
-                                else -> "No photo"
+                                link != null -> tr("In ${invoice.destinationFolderName}", "Em ${invoice.destinationFolderName}")
+                                invoice.photo != null -> tr("Waiting to upload to ${invoice.destinationFolderName}", "A aguardar carregamento para ${invoice.destinationFolderName}")
+                                else -> tr("No photo", "Sem foto")
                             },
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Bold,
@@ -119,7 +121,7 @@ fun InvoiceDetailSheet(
                     }
                     if (link != null) {
                         Text(
-                            "Open",
+                            tr("Open", "Abrir"),
                             style = MaterialTheme.typography.labelMedium,
                             color = FaturaColors.Accent,
                             modifier = Modifier.clickable { runCatching { uriHandler.openUri(link) } },
@@ -130,14 +132,14 @@ fun InvoiceDetailSheet(
             Spacer(Modifier.height(16.dp))
 
             if (invoice.status == InvoiceStatus.FAILED && invoice.destinationSpreadsheetId != null) {
-                FaturaPrimaryButton(text = "Retry saving", onClick = onRetry)
+                FaturaPrimaryButton(text = tr("Retry saving", "Tentar guardar novamente"), onClick = onRetry)
                 Spacer(Modifier.height(6.dp))
             }
             TextButton(onClick = onDelete, modifier = Modifier.fillMaxWidth()) {
-                Text("Remove from history", color = FaturaColors.Danger, style = MaterialTheme.typography.labelLarge)
+                Text(tr("Remove from history", "Remover do histórico"), color = FaturaColors.Danger, style = MaterialTheme.typography.labelLarge)
             }
             Text(
-                if (invoice.status == InvoiceStatus.QUEUED) "Removing it here cancels the save." else "Removing it here doesn't touch the spreadsheet or Drive.",
+                if (invoice.status == InvoiceStatus.QUEUED) tr("Removing it here cancels the save.", "Removê-la aqui cancela o registo.") else tr("Removing it here doesn't touch the spreadsheet or Drive.", "Removê-la aqui não altera a folha de cálculo nem o Drive."),
                 style = MaterialTheme.typography.bodySmall,
                 color = FaturaColors.MutedStrong,
                 modifier = Modifier.fillMaxWidth().padding(top = 2.dp),

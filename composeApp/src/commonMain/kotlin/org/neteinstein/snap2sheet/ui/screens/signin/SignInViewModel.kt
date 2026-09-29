@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.signin
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
@@ -51,7 +53,7 @@ class SignInViewModel(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                _state.update { it.copy(isSigningIn = false, error = e.message ?: "Google sign-in failed.") }
+                _state.update { it.copy(isSigningIn = false, error = e.message ?: tr("Google sign-in failed.", "O início de sessão no Google falhou.")) }
             }
         }
     }

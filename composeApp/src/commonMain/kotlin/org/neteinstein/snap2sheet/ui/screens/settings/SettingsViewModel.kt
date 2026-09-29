@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.settings
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
@@ -75,11 +77,11 @@ class SettingsViewModel(
         viewModelScope.launch {
             try {
                 val account = accountRepository.signInWithGoogle()
-                messages.show("Reconnected as ${account.email}.")
+                messages.show(tr("Reconnected as ${account.email}.", "Reconectado como ${account.email}."))
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                messages.show(e.message ?: "Couldn't reconnect to Google.")
+                messages.show(e.message ?: tr("Couldn't reconnect to Google.", "Não foi possível reconectar ao Google."))
             } finally {
                 isReconnecting.value = false
             }

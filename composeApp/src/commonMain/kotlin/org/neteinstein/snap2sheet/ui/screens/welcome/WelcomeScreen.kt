@@ -1,5 +1,8 @@
 package org.neteinstein.snap2sheet.ui.screens.welcome
 
+import org.neteinstein.snap2sheet.platform.tr
+import org.neteinstein.snap2sheet.ui.components.CopyrightFooter
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -73,7 +76,7 @@ fun WelcomeScreen(onContinue: () -> Unit) {
             Text("Fatura", style = MaterialTheme.typography.headlineMedium, color = FaturaColors.Ink)
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "Scan invoice QR codes.\nFill your spreadsheet automatically.",
+                text = tr("Scan invoice QR codes.\nFill your spreadsheet automatically.", "Digitalize códigos QR de faturas.\nPreencha a folha de cálculo automaticamente."),
                 style = MaterialTheme.typography.bodyLarge,
                 color = FaturaColors.Muted,
                 textAlign = TextAlign.Center,
@@ -86,11 +89,11 @@ fun WelcomeScreen(onContinue: () -> Unit) {
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                OnboardingStep("1. Scan") { FaturaIcons.Camera(tint = FaturaColors.Accent, size = 24.dp) }
+                OnboardingStep(tr("1. Scan", "1. Digitalizar")) { FaturaIcons.Camera(tint = FaturaColors.Accent, size = 24.dp) }
                 StepChevron()
-                OnboardingStep("2. Extract") { FaturaIcons.Document(tint = FaturaColors.Accent, size = 24.dp) }
+                OnboardingStep(tr("2. Extract", "2. Extrair")) { FaturaIcons.Document(tint = FaturaColors.Accent, size = 24.dp) }
                 StepChevron()
-                OnboardingStep("3. Save") { FaturaIcons.Grid(tint = FaturaColors.Accent, size = 22.dp) }
+                OnboardingStep(tr("3. Save", "3. Guardar")) { FaturaIcons.Grid(tint = FaturaColors.Accent, size = 22.dp) }
             }
 
             FaturaCard(containerColor = FaturaColors.SurfaceMuted) {
@@ -99,10 +102,10 @@ fun WelcomeScreen(onContinue: () -> Unit) {
                         FaturaIcons.Camera(tint = FaturaColors.Accent, size = 20.dp)
                     }
                     Column {
-                        Text("Camera & notifications", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
+                        Text(tr("Camera & notifications", "Câmara e notificações"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
                         Text(
-                            "The camera reads the QR code and photographs the invoice, which goes only to your own Google Drive. " +
-                                "Notifications tell you when an invoice has finished saving.",
+                            tr("The camera reads the QR code and photographs the invoice, which goes only to your own Google Drive. ", "A câmara lê o código QR e fotografa a fatura, que vai apenas para o seu próprio Google Drive. ") +
+                                tr("Notifications tell you when an invoice has finished saving.", "As notificações avisam quando uma fatura termina de ser guardada."),
                             style = MaterialTheme.typography.bodySmall,
                             color = FaturaColors.Muted,
                         )
@@ -112,27 +115,28 @@ fun WelcomeScreen(onContinue: () -> Unit) {
 
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (cameraPermission.status == PermissionStatus.GRANTED && notificationPermission.status != PermissionStatus.NOT_DETERMINED) {
-                    FaturaPrimaryButton(text = "Continue", onClick = onContinue)
+                    FaturaPrimaryButton(text = tr("Continue", "Continuar"), onClick = onContinue)
                 } else {
                     FaturaPrimaryButton(
-                        text = "Allow Camera & Notifications",
+                        text = tr("Allow Camera & Notifications", "Permitir câmara e notificações"),
                         onClick = {
                             requested = true
                             if (cameraPermission.status == PermissionStatus.NOT_DETERMINED) cameraPermission.request()
                         },
                     )
-                    FaturaGhostButton(text = "Not now", onClick = onContinue)
+                    FaturaGhostButton(text = tr("Not now", "Agora não"), onClick = onContinue)
                 }
             }
 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 28.dp),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center,
             ) {
                 Dot(on = true)
                 Spacer(Modifier.width(6.dp))
                 Dot(on = false)
             }
+            CopyrightFooter(modifier = Modifier.padding(bottom = 20.dp))
         }
     }
 }

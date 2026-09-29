@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.components
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AlertDialog
@@ -64,7 +66,7 @@ fun TextInputDialog(
                 extraAction?.let { (text, action) ->
                     TextButton(onClick = action) { Text(text, color = FaturaColors.Danger) }
                 }
-                TextButton(onClick = onDismiss) { Text("Cancel", color = FaturaColors.Muted) }
+                TextButton(onClick = onDismiss) { Text(tr("Cancel", "Cancelar"), color = FaturaColors.Muted) }
             }
         },
     )

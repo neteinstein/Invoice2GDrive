@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.platform
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -35,8 +37,8 @@ private class AndroidNotifier(private val context: Context) : Notifier {
     init {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.getSystemService(NotificationManager::class.java).createNotificationChannel(
-                NotificationChannel(CHANNEL_ID, "Invoice saves", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                    description = "When an invoice finishes saving to Google Sheets and Drive, or fails to."
+                NotificationChannel(CHANNEL_ID, tr("Invoice saves", "Registo de faturas"), NotificationManager.IMPORTANCE_DEFAULT).apply {
+                    description = tr("When an invoice finishes saving to Google Sheets and Drive, or fails to.", "Quando uma fatura termina de ser guardada no Google Sheets e Drive, ou falha.")
                 }
             )
         }

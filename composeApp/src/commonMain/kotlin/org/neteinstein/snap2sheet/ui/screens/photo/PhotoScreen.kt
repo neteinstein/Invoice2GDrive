@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.photo
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -60,13 +62,13 @@ fun PhotoScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
-        FaturaTopBar(title = "Photo of the invoice", onBack = onBack)
+        FaturaTopBar(title = tr("Photo of the invoice", "Foto da fatura"), onBack = onBack)
 
         Text(
             if (invoice.rawQr != null) {
-                "QR code read: ${invoice.displayName()} · ${Formatting.euros(invoice.total)}. Now snap the whole invoice — it's saved to your Drive folder next to the spreadsheet row."
+                tr("QR code read: ${invoice.displayName()} · ${Formatting.euros(invoice.total)}. Now snap the whole invoice — it's saved to your Drive folder next to the spreadsheet row.", "Código QR lido: ${invoice.displayName()} · ${Formatting.euros(invoice.total)}. Agora fotografe a fatura inteira — é guardada na pasta do Drive junto à linha da folha de cálculo.")
             } else {
-                "Snap the whole invoice — it's saved to your Drive folder next to the spreadsheet row."
+                tr("Snap the whole invoice — it's saved to your Drive folder next to the spreadsheet row.", "Fotografe a fatura inteira — é guardada na pasta do Drive junto à linha da folha de cálculo.")
             },
             style = MaterialTheme.typography.bodySmall,
             color = FaturaColors.Muted,
@@ -86,10 +88,10 @@ fun PhotoScreen(
             val bytes = state.previewBytes
             val bitmap = remember(bytes) { bytes?.let { runCatching { it.decodeToImageBitmap() }.getOrNull() } }
             when {
-                state.isSaving -> Text("Processing photo…", style = MaterialTheme.typography.bodySmall, color = FaturaColors.Muted)
+                state.isSaving -> Text(tr("Processing photo…", "A processar a foto…"), style = MaterialTheme.typography.bodySmall, color = FaturaColors.Muted)
                 bitmap != null -> Image(bitmap = bitmap, contentDescription = "Invoice photo", contentScale = ContentScale.Fit, modifier = Modifier.fillMaxSize().padding(8.dp))
-                state.isPdf -> PlaceholderContent("PDF attached", "It will be uploaded as-is.")
-                else -> PlaceholderContent("No photo yet", "Lay the invoice flat, in good light, with all four corners visible.")
+                state.isPdf -> PlaceholderContent(tr("PDF attached", "PDF anexado"), tr("It will be uploaded as-is.", "Será carregado tal como está."))
+                else -> PlaceholderContent(tr("No photo yet", "Ainda sem foto"), tr("Lay the invoice flat, in good light, with all four corners visible.", "Coloque a fatura na horizontal, com boa luz e os quatro cantos visíveis."))
             }
         }
 
@@ -98,15 +100,15 @@ fun PhotoScreen(
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
             if (state.hasPhoto) {
-                FaturaPrimaryButton(text = "Continue", onClick = onContinue, enabled = !state.isSaving)
-                FaturaDashedButton(text = "Retake photo", onClick = { pick(PhotoSource.CAMERA) })
-                FaturaGhostButton(text = "Remove photo", onClick = viewModel::removePhoto)
+                FaturaPrimaryButton(text = tr("Continue", "Continuar"), onClick = onContinue, enabled = !state.isSaving)
+                FaturaDashedButton(text = tr("Retake photo", "Tirar outra foto"), onClick = { pick(PhotoSource.CAMERA) })
+                FaturaGhostButton(text = tr("Remove photo", "Remover foto"), onClick = viewModel::removePhoto)
             } else {
-                FaturaPrimaryButton(text = "Take photo", onClick = { pick(PhotoSource.CAMERA) }, enabled = !state.isSaving) {
+                FaturaPrimaryButton(text = tr("Take photo", "Tirar foto"), onClick = { pick(PhotoSource.CAMERA) }, enabled = !state.isSaving) {
                     FaturaIcons.Camera(tint = androidx.compose.ui.graphics.Color.White, size = 18.dp)
                 }
-                FaturaDashedButton(text = "Choose from library", onClick = { pick(PhotoSource.LIBRARY) })
-                FaturaGhostButton(text = "Skip — save the data only", onClick = onContinue)
+                FaturaDashedButton(text = tr("Choose from library", "Escolher da biblioteca"), onClick = { pick(PhotoSource.LIBRARY) })
+                FaturaGhostButton(text = tr("Skip — save the data only", "Saltar — guardar só os dados"), onClick = onContinue)
             }
         }
     }

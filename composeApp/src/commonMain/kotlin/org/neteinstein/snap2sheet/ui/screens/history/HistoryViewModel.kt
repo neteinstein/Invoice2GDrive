@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.history
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +22,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 
 enum class HistoryFilter(val label: String) {
-    ALL("All"), SAVING("Saving"), SYNCED("Synced"), NEEDS_REVIEW("Needs review"), FAILED("Failed")
+    ALL(tr("All", "Todas")), SAVING(tr("Saving", "A guardar")), SYNCED(tr("Synced", "Sincronizada")), NEEDS_REVIEW(tr("Needs review", "Requer revisão")), FAILED(tr("Failed", "Falhou"))
 }
 
 sealed interface HistoryRow {
@@ -81,7 +83,7 @@ class HistoryViewModel(
             }
             val scanned = Instant.fromEpochMilliseconds(invoice.scannedAtEpochMillis).toLocalDateTime(zone)
             val time = scanned.hour.toString().padStart(2, '0') + ":" + scanned.minute.toString().padStart(2, '0')
-            val whenLabel = if (group == "Today" || group == "Yesterday") time else Formatting.date(scanned.date)
+            val whenLabel = if (group == tr("Today", "Hoje") || group == tr("Yesterday", "Ontem")) time else Formatting.date(scanned.date)
             rows += HistoryRow.Item(InvoiceListItem(invoice, listOfNotNull(whenLabel, invoice.destinationSpreadsheetName).joinToString(" · ")))
         }
         return rows

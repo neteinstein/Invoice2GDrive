@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.scan
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -110,7 +112,7 @@ fun ScanScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 RoundIconButton(onClick = onBack) { FaturaIcons.Back(tint = Color.White) }
-                Text("Scan Invoice", style = MaterialTheme.typography.titleSmall, color = Color.White)
+                Text(tr("Scan Invoice", "Digitalizar fatura"), style = MaterialTheme.typography.titleSmall, color = Color.White)
                 RoundIconButton(onClick = viewModel::onManualEntry) { FaturaIcons.Document(tint = Color.White, size = 18.dp) }
             }
 
@@ -128,7 +130,7 @@ fun ScanScreen(
                             onAllow = permission::request,
                             onOpenSettings = permission::openSettings,
                         )
-                        !hasInlineCameraPreview && !browserScanActive -> PillButton(text = "Scan again", onClick = { browserScanActive = true })
+                        !hasInlineCameraPreview && !browserScanActive -> PillButton(text = tr("Scan again", "Digitalizar de novo"), onClick = { browserScanActive = true })
                         else -> ScanLine()
                     }
                 }
@@ -145,9 +147,9 @@ fun ScanScreen(
                     Box(modifier = Modifier.size(7.dp).clip(CircleShape).background(if (error != null) ScanError else Color(0xFF4ADE80)))
                     Text(
                         error ?: when {
-                            showScanner -> "Looking for a QR code…"
-                            !hasInlineCameraPreview -> "Scanner closed"
-                            else -> "Camera is off"
+                            showScanner -> tr("Looking for a QR code…", "À procura de um código QR…")
+                            !hasInlineCameraPreview -> tr("Scanner closed", "Leitor fechado")
+                            else -> tr("Camera is off", "Câmara desligada")
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFFEDEFF2),
@@ -155,7 +157,7 @@ fun ScanScreen(
                 }
                 Spacer(Modifier.height(26.dp))
                 Text(
-                    "Align the invoice's QR code inside the frame. It fills in automatically.",
+                    tr("Align the invoice's QR code inside the frame. It fills in automatically.", "Alinhe o código QR da fatura dentro da moldura. Os dados são preenchidos automaticamente."),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFFC6CAD2),
                     textAlign = TextAlign.Center,
@@ -170,11 +172,11 @@ fun ScanScreen(
                     .padding(bottom = 36.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                Text("No QR code, or it won't scan?", style = MaterialTheme.typography.bodySmall, color = Color(0xFF9BA1AB), fontWeight = FontWeight.SemiBold)
+                Text(tr("No QR code, or it won't scan?", "Sem código QR, ou não lê?"), style = MaterialTheme.typography.bodySmall, color = Color(0xFF9BA1AB), fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(12.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    PillButton(text = "Paste QR text", onClick = { showPasteDialog = true }, subtle = true)
-                    PillButton(text = "Type it in", onClick = viewModel::onManualEntry, subtle = true)
+                    PillButton(text = tr("Paste QR text", "Colar texto do QR"), onClick = { showPasteDialog = true }, subtle = true)
+                    PillButton(text = tr("Type it in", "Escrever manualmente"), onClick = viewModel::onManualEntry, subtle = true)
                 }
             }
         }
@@ -182,12 +184,12 @@ fun ScanScreen(
 
     if (showPasteDialog) {
         TextInputDialog(
-            title = "Paste QR code text",
-            label = "QR code text",
+            title = tr("Paste QR code text", "Colar texto do código QR"),
+            label = tr("QR code text", "Texto do código QR"),
             placeholder = "A:500100209*B:999999990*C:PT*…",
-            confirmText = "Use",
+            confirmText = tr("Use", "Usar"),
             singleLine = false,
-            supportingText = "The text encoded in the invoice's QR code, e.g. from another scanner app.",
+            supportingText = tr("The text encoded in the invoice's QR code, e.g. from another scanner app.", "O texto codificado no código QR da fatura, por exemplo de outra aplicação de leitura."),
             onConfirm = {
                 showPasteDialog = false
                 viewModel.onPasted(it)
@@ -221,15 +223,15 @@ private fun ScanLine() {
 private fun PermissionPrompt(denied: Boolean, canOpenSettings: Boolean, onAllow: () -> Unit, onOpenSettings: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
         Text(
-            if (denied) "Camera access is off. Turn it on to scan QR codes." else "Fatura needs the camera to scan QR codes.",
+            if (denied) tr("Camera access is off. Turn it on to scan QR codes.", "O acesso à câmara está desligado. Ative-o para ler códigos QR.") else tr("Fatura needs the camera to scan QR codes.", "A Fatura precisa da câmara para ler códigos QR."),
             style = MaterialTheme.typography.bodySmall,
             color = Color.White,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(14.dp))
         when {
-            !denied -> PillButton(text = "Allow camera", onClick = onAllow)
-            canOpenSettings -> PillButton(text = "Open settings", onClick = onOpenSettings)
+            !denied -> PillButton(text = tr("Allow camera", "Permitir câmara"), onClick = onAllow)
+            canOpenSettings -> PillButton(text = tr("Open settings", "Abrir definições"), onClick = onOpenSettings)
         }
     }
 }

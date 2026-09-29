@@ -1,5 +1,8 @@
 package org.neteinstein.snap2sheet.ui.screens.settings
 
+import org.neteinstein.snap2sheet.platform.tr
+import org.neteinstein.snap2sheet.ui.components.CopyrightFooter
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,11 +54,11 @@ fun SettingsScreen(
     val notificationPermission = rememberNotificationPermissionState()
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface).navigationBarsPadding()) {
-        FaturaTopBar(title = "Settings", onBack = onBack)
+        FaturaTopBar(title = tr("Settings", "Definições"), onBack = onBack)
 
         LazyColumn(modifier = Modifier.weight(1f)) {
             item {
-                SettingsSection(title = "Account") {
+                SettingsSection(title = tr("Account", "Conta")) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
                         Row(
                             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -70,7 +73,7 @@ fun SettingsScreen(
                             }
                             Column {
                                 Text(
-                                    state.account?.email ?: "Not signed in",
+                                    state.account?.email ?: tr("Not signed in", "Sessão não iniciada"),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = FaturaColors.Ink,
@@ -79,8 +82,8 @@ fun SettingsScreen(
                                 )
                                 Text(
                                     when {
-                                        state.account == null -> "Disconnected"
-                                        else -> "Connected"
+                                        state.account == null -> tr("Disconnected", "Desligado")
+                                        else -> tr("Connected", "Ligado")
                                     },
                                     style = MaterialTheme.typography.labelSmall,
                                     color = if (state.account != null) FaturaColors.Success else FaturaColors.Muted,
@@ -88,7 +91,7 @@ fun SettingsScreen(
                             }
                         }
                         Text(
-                            "Sign out",
+                            tr("Sign out", "Terminar sessão"),
                             style = MaterialTheme.typography.labelMedium,
                             color = FaturaColors.Danger,
                             modifier = Modifier.clickable(onClick = viewModel::signOut),
@@ -101,13 +104,13 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                "Saves failing with a sign-in error?",
+                                tr("Saves failing with a sign-in error?", "Os registos falham com erro de início de sessão?"),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = FaturaColors.Muted,
                                 modifier = Modifier.weight(1f),
                             )
                             Text(
-                                if (state.isReconnecting) "Reconnecting…" else "Reconnect",
+                                if (state.isReconnecting) tr("Reconnecting…", "A reconectar…") else tr("Reconnect", "Reconectar"),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = FaturaColors.Accent,
                                 modifier = if (state.isReconnecting) Modifier else Modifier.clickable(onClick = viewModel::reconnect),
@@ -115,7 +118,7 @@ fun SettingsScreen(
                         }
                     }
                     Text(
-                        "Signing out removes this device's invoice history. Your spreadsheets are untouched.",
+                        tr("Signing out removes this device's invoice history. Your spreadsheets are untouched.", "Terminar a sessão remove o histórico de faturas deste dispositivo. As suas folhas de cálculo não são alteradas."),
                         style = MaterialTheme.typography.bodySmall,
                         color = FaturaColors.MutedStrong,
                         modifier = Modifier.padding(top = 6.dp, bottom = 4.dp),
@@ -124,14 +127,14 @@ fun SettingsScreen(
             }
 
             item {
-                SettingsSection(title = "Defaults") {
+                SettingsSection(title = tr("Defaults", "Predefinições")) {
                     DefaultRow(
-                        label = "SPREADSHEET",
+                        label = tr("SPREADSHEET", "FOLHA DE CÁLCULO"),
                         value = state.defaultSpreadsheetName,
                         onClick = onChangeDefaults,
                     ) { FaturaIcons.Document(tint = FaturaColors.Accent, size = 18.dp) }
                     DefaultRow(
-                        label = "DRIVE FOLDER FOR PHOTOS",
+                        label = tr("DRIVE FOLDER FOR PHOTOS", "PASTA DO DRIVE PARA FOTOS"),
                         value = state.defaultFolderName,
                         onClick = onChangeDefaults,
                     ) { FaturaIcons.Folder(tint = FaturaColors.Accent, size = 18.dp) }
@@ -139,22 +142,22 @@ fun SettingsScreen(
             }
 
             item {
-                SettingsSection(title = "Append Rules") {
+                SettingsSection(title = tr("Append Rules", "Regras de adição")) {
                     SettingsSwitchRow(
-                        title = "Match columns by header",
-                        subtitle = "Fills each column by its title, not position",
+                        title = tr("Match columns by header", "Associar colunas pelo cabeçalho"),
+                        subtitle = tr("Fills each column by its title, not position", "Preenche cada coluna pelo título, não pela posição"),
                         checked = state.appendRules.matchColumnsByHeader,
                         onCheckedChange = viewModel::setMatchColumnsByHeader,
                     )
                     SettingsSwitchRow(
-                        title = "Skip duplicate invoices",
-                        subtitle = "Matched by ATCUD code",
+                        title = tr("Skip duplicate invoices", "Ignorar faturas duplicadas"),
+                        subtitle = tr("Matched by ATCUD code", "Identificadas pelo código ATCUD"),
                         checked = state.appendRules.skipDuplicateInvoices,
                         onCheckedChange = viewModel::setSkipDuplicates,
                     )
                     SettingsSwitchRow(
-                        title = "New sheet tab each month",
-                        subtitle = "Otherwise all rows append to one tab",
+                        title = tr("New sheet tab each month", "Novo separador em cada mês"),
+                        subtitle = tr("Otherwise all rows append to one tab", "Caso contrário, todas as linhas vão para um só separador"),
                         checked = state.appendRules.newSheetTabEachMonth,
                         onCheckedChange = viewModel::setNewSheetTabEachMonth,
                     )
@@ -162,14 +165,14 @@ fun SettingsScreen(
             }
 
             item {
-                SettingsSection(title = "Permissions") {
+                SettingsSection(title = tr("Permissions", "Permissões")) {
                     val camera = cameraPermission.status
                     PermissionRow(
-                        label = "Camera",
+                        label = tr("Camera", "Câmara"),
                         value = when (camera) {
-                            PermissionStatus.GRANTED -> "Allowed"
-                            PermissionStatus.DENIED -> if (cameraPermission.canOpenSettings) "Denied · Open settings" else "Blocked in browser"
-                            PermissionStatus.NOT_DETERMINED -> "Not asked · Allow"
+                            PermissionStatus.GRANTED -> tr("Allowed", "Permitido")
+                            PermissionStatus.DENIED -> if (cameraPermission.canOpenSettings) tr("Denied · Open settings", "Recusado · Abrir definições") else tr("Blocked in browser", "Bloqueado no navegador")
+                            PermissionStatus.NOT_DETERMINED -> tr("Not asked · Allow", "Por pedir · Permitir")
                         },
                         allowed = camera == PermissionStatus.GRANTED,
                         onClick = when (camera) {
@@ -180,11 +183,11 @@ fun SettingsScreen(
                     ) { FaturaIcons.Camera(tint = FaturaColors.Muted, size = 17.dp) }
                     val notifications = notificationPermission.status
                     PermissionRow(
-                        label = "Notifications",
+                        label = tr("Notifications", "Notificações"),
                         value = when (notifications) {
-                            PermissionStatus.GRANTED -> "Allowed"
-                            PermissionStatus.DENIED -> if (notificationPermission.canOpenSettings) "Denied · Open settings" else "Blocked in browser"
-                            PermissionStatus.NOT_DETERMINED -> "Not asked · Allow"
+                            PermissionStatus.GRANTED -> tr("Allowed", "Permitido")
+                            PermissionStatus.DENIED -> if (notificationPermission.canOpenSettings) tr("Denied · Open settings", "Recusado · Abrir definições") else tr("Blocked in browser", "Bloqueado no navegador")
+                            PermissionStatus.NOT_DETERMINED -> tr("Not asked · Allow", "Por pedir · Permitir")
                         },
                         allowed = notifications == PermissionStatus.GRANTED,
                         onClick = when (notifications) {
@@ -194,10 +197,10 @@ fun SettingsScreen(
                         },
                     ) { FaturaIcons.Clock(tint = FaturaColors.Muted, size = 17.dp) }
                     PermissionRow(
-                        label = "Google Sheets & Drive",
+                        label = tr("Google Sheets & Drive", "Google Sheets e Drive"),
                         value = when {
-                            state.account == null -> "Not connected"
-                            else -> "Allowed"
+                            state.account == null -> tr("Not connected", "Não ligado")
+                            else -> tr("Allowed", "Permitido")
                         },
                         allowed = state.account != null,
                         onClick = null,
@@ -206,10 +209,10 @@ fun SettingsScreen(
             }
 
             item {
-                SettingsSection(title = "Notifications") {
+                SettingsSection(title = tr("Notifications", "Notificações")) {
                     SettingsSwitchRow(
-                        title = "Notify me when a save finishes",
-                        subtitle = "Invoices save in the background — get a notification when each one is done, or fails",
+                        title = tr("Notify me when a save finishes", "Notificar-me quando um registo terminar"),
+                        subtitle = tr("Invoices save in the background — get a notification when each one is done, or fails", "As faturas são guardadas em segundo plano — receba uma notificação quando cada uma terminar ou falhar"),
                         checked = state.notifyWhenSaveFinishes,
                         onCheckedChange = { enabled ->
                             viewModel.setNotifyWhenSaveFinishes(enabled)
@@ -220,8 +223,13 @@ fun SettingsScreen(
             }
 
             item {
-                Box(modifier = Modifier.fillMaxWidth().padding(vertical = 26.dp), contentAlignment = Alignment.Center) {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 26.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
                     Text("Fatura v1.0.0", style = MaterialTheme.typography.bodySmall, color = FaturaColors.Muted)
+                    CopyrightFooter()
                 }
             }
         }
@@ -285,7 +293,7 @@ private fun DefaultRow(label: String, value: String?, onClick: () -> Unit, icon:
         Column(modifier = Modifier.weight(1f)) {
             Text(label, style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
             Text(
-                value ?: "None selected",
+                value ?: tr("None selected", "Nenhuma selecionada"),
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Bold,
                 color = FaturaColors.Ink,
@@ -293,6 +301,6 @@ private fun DefaultRow(label: String, value: String?, onClick: () -> Unit, icon:
                 overflow = TextOverflow.Ellipsis,
             )
         }
-        Text("Change", style = MaterialTheme.typography.labelMedium, color = FaturaColors.Accent)
+        Text(tr("Change", "Alterar"), style = MaterialTheme.typography.labelMedium, color = FaturaColors.Accent)
     }
 }

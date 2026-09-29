@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.review
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -79,7 +81,7 @@ fun ReviewScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface).imePadding()) {
-        FaturaTopBar(title = "Review Invoice", onBack = onBack)
+        FaturaTopBar(title = tr("Review Invoice", "Rever fatura"), onBack = onBack)
 
         Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
             if (state.fromQr) {
@@ -92,10 +94,10 @@ fun ReviewScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     CheckMark()
-                    Text("QR code scanned successfully", style = MaterialTheme.typography.labelMedium, color = FaturaColors.Success)
+                    Text(tr("QR code scanned successfully", "Código QR lido com sucesso"), style = MaterialTheme.typography.labelMedium, color = FaturaColors.Success)
                 }
             } else {
-                Notice(text = "Type in the invoice details as printed.", color = FaturaColors.Muted, background = FaturaColors.Background)
+                Notice(text = tr("Type in the invoice details as printed.", "Escreva os dados da fatura tal como estão impressos."), color = FaturaColors.Muted, background = FaturaColors.Background)
             }
         }
 
@@ -132,12 +134,12 @@ fun ReviewScreen(
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             IconBadge(size = 36.dp) { FaturaIcons.Camera(tint = FaturaColors.Accent, size = 18.dp) }
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("PHOTO OF THE INVOICE", style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
+                                Text(tr("PHOTO OF THE INVOICE", "FOTO DA FATURA"), style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
                                 Text(
                                     when {
-                                        invoice.photo == null -> "None — tap to add one"
-                                        invoice.photo.mimeType == "application/pdf" -> "PDF attached"
-                                        else -> "Photo attached"
+                                        invoice.photo == null -> tr("None — tap to add one", "Nenhuma — toque para adicionar")
+                                        invoice.photo.mimeType == "application/pdf" -> tr("PDF attached", "PDF anexado")
+                                        else -> tr("Photo attached", "Foto anexada")
                                     },
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
@@ -154,7 +156,7 @@ fun ReviewScreen(
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 12.dp)) {
                         Notice(
-                            text = "Worth a second look:\n" + state.warnings.joinToString("\n") { "• $it" },
+                            text = tr("Worth a second look:\n", "Convém rever:\n") + state.warnings.joinToString("\n") { "• $it" },
                             color = FaturaColors.Warning,
                             background = FaturaColors.WarningSoft,
                         )
@@ -164,7 +166,7 @@ fun ReviewScreen(
 
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)) {
-                    SectionTitle(text = "Invoice details")
+                    SectionTitle(text = tr("Invoice details", "Dados da fatura"))
                 }
                 Spacer(Modifier.height(8.dp))
             }
@@ -187,7 +189,7 @@ fun ReviewScreen(
 
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 20.dp, bottom = 6.dp)) {
-                    SectionTitle(text = "Destination")
+                    SectionTitle(text = tr("Destination", "Destino"))
                 }
                 Spacer(Modifier.height(8.dp))
             }
@@ -198,18 +200,18 @@ fun ReviewScreen(
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             IconBadge(size = 36.dp) { FaturaIcons.Document(tint = FaturaColors.Accent, size = 18.dp) }
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("ROW IN", style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
+                                Text(tr("ROW IN", "LINHA EM"), style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
                                 Text(
-                                    state.selectedSpreadsheetName ?: "Choose a spreadsheet",
+                                    state.selectedSpreadsheetName ?: tr("Choose a spreadsheet", "Escolha uma folha de cálculo"),
                                     style = MaterialTheme.typography.titleSmall,
                                     fontWeight = FontWeight.Bold,
                                     color = FaturaColors.Ink,
                                 )
                                 if (invoice.photo != null) {
                                     Spacer(Modifier.height(6.dp))
-                                    Text("PHOTO IN", style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
+                                    Text(tr("PHOTO IN", "FOTO EM"), style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
                                     Text(
-                                        state.selectedFolderName ?: "Choose a Drive folder",
+                                        state.selectedFolderName ?: tr("Choose a Drive folder", "Escolha uma pasta do Drive"),
                                         style = MaterialTheme.typography.titleSmall,
                                         fontWeight = FontWeight.Bold,
                                         color = FaturaColors.Ink,
@@ -226,9 +228,9 @@ fun ReviewScreen(
         Box(modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(20.dp)) {
             FaturaPrimaryButton(
                 text = when {
-                    state.isSaving -> "Saving…"
-                    state.savesDirectly -> "Save to ${state.selectedSpreadsheetName}"
-                    else -> "Save Invoice"
+                    state.isSaving -> tr("Saving…", "A guardar…")
+                    state.savesDirectly -> tr("Save to ${state.selectedSpreadsheetName}", "Guardar em ${state.selectedSpreadsheetName}")
+                    else -> tr("Save Invoice", "Guardar fatura")
                 },
                 onClick = viewModel::onSave,
                 enabled = state.canSave,
@@ -262,7 +264,7 @@ private fun FieldRow(
             Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
                 if (value.isEmpty()) {
                     Text(
-                        if (field == ReviewField.MERCHANT) "Add a name" else "—",
+                        if (field == ReviewField.MERCHANT) tr("Add a name", "Adicionar nome") else "—",
                         style = MaterialTheme.typography.bodySmall,
                         color = FaturaColors.Subtle,
                         textAlign = TextAlign.End,
