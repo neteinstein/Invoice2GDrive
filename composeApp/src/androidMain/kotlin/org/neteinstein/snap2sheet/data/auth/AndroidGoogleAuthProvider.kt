@@ -19,6 +19,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import org.neteinstein.snap2sheet.data.local.AndroidAppContext
+import org.neteinstein.snap2sheet.data.local.KeyValueStore
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -124,4 +125,4 @@ class AndroidGoogleAuthProvider : GoogleAuthProvider {
     }
 }
 
-actual fun platformGoogleAuthProvider(http: HttpClient): GoogleAuthProvider = AndroidGoogleAuthProvider()
+actual fun platformGoogleAuthProvider(http: HttpClient, store: KeyValueStore): GoogleAuthProvider = AndroidGoogleAuthProvider()

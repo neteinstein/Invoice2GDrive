@@ -29,10 +29,14 @@ jobs:
 
       - name: Build wasmJs web distribution
         # The OAuth client ID isn't a secret (it ships in the page), so it lives in a repository
-        # variable. Without it sign-in is unavailable.
+        # variable. Without it, users have to paste their own client ID in the app.
         env:
           GOOGLE_WEB_CLIENT_ID: ${{ vars.GOOGLE_WEB_CLIENT_ID }}
-        run: ./gradlew :composeApp:wasmJsBrowserDistribution
+        run: |
+          if [ -z "$GOOGLE_WEB_CLIENT_ID" ]; then
+            echo "::warning::GOOGLE_WEB_CLIENT_ID isn't set, so the site has no built-in Google sign-in. Visitors can still paste their own OAuth client ID on the Connect Google screen."
+          fi
+          ./gradlew :composeApp:wasmJsBrowserDistribution
 
       - uses: actions/upload-pages-artifact@v3
         with:

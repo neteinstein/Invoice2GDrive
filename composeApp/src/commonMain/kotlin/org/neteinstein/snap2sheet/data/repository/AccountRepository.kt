@@ -16,6 +16,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.neteinstein.snap2sheet.data.auth.AccessTokenProvider
 import org.neteinstein.snap2sheet.data.auth.GoogleAuthProvider
 import org.neteinstein.snap2sheet.data.auth.NotSignedInException
+import org.neteinstein.snap2sheet.data.auth.OAuthClientSetup
 import org.neteinstein.snap2sheet.data.local.KeyValueStore
 import org.neteinstein.snap2sheet.domain.model.GoogleAccount
 
@@ -30,8 +31,11 @@ private const val USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 interface AccountRepository : AccessTokenProvider {
     val account: StateFlow<GoogleAccount?>
 
-    /** False when this build has no Google OAuth client for the platform. */
+    /** False while there's no Google OAuth client ID for the platform. */
     val isGoogleSignInAvailable: Boolean
+
+    /** Entering the OAuth client ID in the app, on platforms that need one (iOS, web); null on Android. */
+    val oauthClientSetup: OAuthClientSetup?
 
     /** Runs Google sign-in and fetches the account's email/name. Throws with a user-facing message on failure. */
     suspend fun signInWithGoogle(): GoogleAccount
@@ -50,6 +54,8 @@ class DefaultAccountRepository(
     override val account: StateFlow<GoogleAccount?> = _account.asStateFlow()
 
     override val isGoogleSignInAvailable: Boolean get() = auth.isConfigured
+
+    override val oauthClientSetup: OAuthClientSetup? get() = auth.clientSetup
 
     override suspend fun signInWithGoogle(): GoogleAccount {
         val token = auth.signIn()

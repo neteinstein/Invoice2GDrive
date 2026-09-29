@@ -28,11 +28,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
+import org.neteinstein.snap2sheet.ui.components.FaturaGhostButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.Notice
 import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
 import org.neteinstein.snap2sheet.ui.components.IconBadge
+import org.neteinstein.snap2sheet.ui.components.TextInputDialog
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 
 @Composable
@@ -42,6 +44,7 @@ fun SignInScreen(
     viewModel: SignInViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val clientIdSetup = state.clientIdSetup
     LaunchedEffect(state.signedIn) { if (state.signedIn) onSignedIn() }
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
@@ -94,6 +97,23 @@ fun SignInScreen(
                 ) {
                     GoogleGlyph()
                 }
+                if (clientIdSetup?.isEnteredInApp == true) {
+                    FaturaGhostButton(text = "Change OAuth client ID", onClick = viewModel::editClientId)
+                }
+            } else if (clientIdSetup != null) {
+                Text(
+                    "To connect Google, paste the ID of your own OAuth client (Google Cloud Console, " +
+                        "APIs & Services, Credentials). Type: ${clientIdSetup.clientType}. " +
+                        "${clientIdSetup.registration}.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FaturaColors.Muted,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(12.dp))
+                FaturaPrimaryButton(text = "Enter OAuth client ID", onClick = viewModel::editClientId) {
+                    GoogleGlyph()
+                }
             } else {
                 Text(
                     "Google sign-in isn't set up in this build.",
@@ -103,6 +123,21 @@ fun SignInScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
+        }
+
+        if (state.isEditingClientId && clientIdSetup != null) {
+            TextInputDialog(
+                title = "Google OAuth client ID",
+                label = "Client ID",
+                confirmText = "Save",
+                onConfirm = viewModel::saveClientId,
+                onDismiss = viewModel::dismissClientIdEditor,
+                initialValue = if (clientIdSetup.isEnteredInApp) clientIdSetup.clientId else "",
+                placeholder = "1234-abc.apps.googleusercontent.com",
+                supportingText = state.clientIdError
+                    ?: "A \"${clientIdSetup.clientType}\" client. ${clientIdSetup.registration}.",
+                extraAction = if (clientIdSetup.isEnteredInApp) ("Remove" to viewModel::resetClientId) else null,
+            )
         }
 
         Column(

@@ -87,7 +87,11 @@ Fatura needs an OAuth client per platform in a Google Cloud project:
    google.iosClientId=1234-def.apps.googleusercontent.com   # or GOOGLE_IOS_CLIENT_ID
    ```
 
-A build without a client ID for its platform can't sign in to Google.
+A build without a client ID for its platform can still connect Google. The Connect Google screen
+asks for the client ID instead: tap **Enter OAuth client ID** and paste your client's ID. The
+screen shows what the client needs, which is the page's origin on the web and the bundle ID on iOS.
+The ID is saved on the device and can be changed or removed from the same screen. Android never
+needs one.
 
 ## Building
 

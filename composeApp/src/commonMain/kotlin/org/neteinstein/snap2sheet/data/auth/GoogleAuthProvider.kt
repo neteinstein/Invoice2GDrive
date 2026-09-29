@@ -1,6 +1,7 @@
 package org.neteinstein.snap2sheet.data.auth
 
 import io.ktor.client.HttpClient
+import org.neteinstein.snap2sheet.data.local.KeyValueStore
 
 /** OAuth scopes requested at sign-in — mirrored by the two bullets on the Connect Google screen. */
 object GoogleScopes {
@@ -27,11 +28,18 @@ class NotSignedInException(message: String = "Your Google session expired. Sign 
  * The platform's Google OAuth flow, reduced to "give me an access token for [GoogleScopes.ALL]".
  * Android uses Google Identity Services' `AuthorizationClient`; iOS runs an authorization-code +
  * PKCE flow in `ASWebAuthenticationSession`; the web uses the Google Identity Services token
- * client. See `GoogleClientConfig` for how the OAuth client IDs get into the build.
+ * client. See `GoogleClientConfig` for how the OAuth client IDs get into the build, and
+ * [OAuthClientSetup] for entering one in the app instead.
  */
 interface GoogleAuthProvider {
-    /** False when this build has no OAuth client configured for the platform. */
+    /** False while there's no OAuth client ID for the platform. */
     val isConfigured: Boolean
+
+    /**
+     * Where the OAuth client ID comes from, on platforms that need one in code (iOS, web); null
+     * where Google matches the app itself (Android).
+     */
+    val clientSetup: OAuthClientSetup? get() = null
 
     /** Runs the interactive flow (consent screen, account picker) and returns an access token. */
     suspend fun signIn(): String
@@ -52,4 +60,4 @@ fun interface AccessTokenProvider {
     suspend fun accessToken(forceRefresh: Boolean): String
 }
 
-expect fun platformGoogleAuthProvider(http: HttpClient): GoogleAuthProvider
+expect fun platformGoogleAuthProvider(http: HttpClient, store: KeyValueStore): GoogleAuthProvider

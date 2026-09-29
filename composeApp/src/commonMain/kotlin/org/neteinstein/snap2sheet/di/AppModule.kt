@@ -67,7 +67,7 @@ internal val appModule = module {
     }
     single { platformKeyValueStore() }
     single { platformPhotoStore() }
-    single { platformGoogleAuthProvider(get()) }
+    single { platformGoogleAuthProvider(get(), get()) }
     single { platformNotifier() }
     single { platformBackgroundScheduler() }
     single { MessageCenter() }
