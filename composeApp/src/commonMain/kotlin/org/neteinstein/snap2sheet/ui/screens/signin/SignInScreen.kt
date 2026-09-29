@@ -164,12 +164,13 @@ private fun PermissionRow(text: String) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
+        val success = FaturaColors.Success
         androidx.compose.foundation.Canvas(Modifier.size(18.dp)) {
             val w = size.width
             val h = size.height
             val strokeWidth = w * 0.11f
             drawCircle(
-                color = FaturaColors.Success,
+                color = success,
                 radius = size.minDimension / 2,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
             )
@@ -180,7 +181,7 @@ private fun PermissionRow(text: String) {
             }
             drawPath(
                 path,
-                color = FaturaColors.Success,
+                color = success,
                 style = androidx.compose.ui.graphics.drawscope.Stroke(
                     width = strokeWidth,
                     cap = androidx.compose.ui.graphics.StrokeCap.Round,
