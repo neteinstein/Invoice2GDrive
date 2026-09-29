@@ -12,6 +12,8 @@ import kotlinx.coroutines.launch
 import org.neteinstein.snap2sheet.data.repository.InvoiceRepository
 import org.neteinstein.snap2sheet.domain.model.Invoice
 import org.neteinstein.snap2sheet.platform.CapturedPhoto
+import org.neteinstein.snap2sheet.platform.cropPerspective
+import org.neteinstein.snap2sheet.ui.components.defaultCorners
 
 data class PhotoUiState(
     val invoice: Invoice? = null,
@@ -19,6 +21,9 @@ data class PhotoUiState(
     val previewBytes: ByteArray? = null,
     val isPdf: Boolean = false,
     val isSaving: Boolean = false,
+    /** A freshly captured image waiting for the user to adjust the crop corners. */
+    val pendingBytes: ByteArray? = null,
+    val corners: FloatArray = defaultCorners(),
 ) {
     val hasPhoto: Boolean get() = invoice?.photo != null
 }
@@ -40,9 +45,34 @@ class PhotoViewModel(private val invoiceRepository: InvoiceRepository) : ViewMod
 
     fun onCaptured(photo: CapturedPhoto?) {
         if (photo == null) return
+        if (!photo.mimeType.startsWith("image/")) {
+            attach(photo.bytes, photo.mimeType)
+            return
+        }
+        _state.update { it.copy(pendingBytes = photo.bytes, corners = defaultCorners()) }
+    }
+
+    fun onCornersChange(corners: FloatArray) = _state.update { it.copy(corners = corners) }
+
+    /** Discards the captured image without attaching anything. */
+    fun cancelCrop() = _state.update { it.copy(pendingBytes = null) }
+
+    /** Attaches the pending image, cropped to the chosen corners unless [crop] is false. */
+    fun confirmCrop(crop: Boolean) {
+        val current = _state.value
+        val original = current.pendingBytes ?: return
+        _state.update { it.copy(pendingBytes = null, isSaving = true) }
+        viewModelScope.launch {
+            val bytes = if (crop) cropPerspective(original, current.corners) ?: original else original
+            invoiceRepository.attachPhoto(bytes, "image/jpeg")
+            _state.update { it.copy(isSaving = false) }
+        }
+    }
+
+    private fun attach(bytes: ByteArray, mimeType: String) {
         _state.update { it.copy(isSaving = true) }
         viewModelScope.launch {
-            invoiceRepository.attachPhoto(photo.bytes, photo.mimeType)
+            invoiceRepository.attachPhoto(bytes, mimeType)
             _state.update { it.copy(isSaving = false) }
         }
     }
