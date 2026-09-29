@@ -43,7 +43,7 @@ class AndroidGoogleAuthProvider : GoogleAuthProvider {
     override val isConfigured: Boolean = true
 
     override suspend fun signIn(): String {
-        val activity = AndroidAppContext.currentActivity ?: error(tr("Open Fatura to sign in.", "Abra a Fatura para iniciar sessão."))
+        val activity = AndroidAppContext.currentActivity ?: error(tr("Open the app to sign in.", "Abra a app para iniciar sessão."))
         val client = Identity.getAuthorizationClient(activity)
         val result = try {
             client.authorize(request).await()

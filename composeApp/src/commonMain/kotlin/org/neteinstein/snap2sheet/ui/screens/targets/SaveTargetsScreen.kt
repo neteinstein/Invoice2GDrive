@@ -252,7 +252,7 @@ fun SaveTargetsScreen(
             label = tr("Name", "Nome"),
             confirmText = tr("Create", "Criar"),
             initialValue = remember(state.tab) { viewModel.suggestedName() },
-            supportingText = if (state.tab == TargetKind.SPREADSHEET) tr("Created in your Google Drive with Fatura's columns.", "Criada no seu Google Drive com as colunas da Fatura.") else tr("Created at the top of your Google Drive.", "Criada na raiz do seu Google Drive."),
+            supportingText = if (state.tab == TargetKind.SPREADSHEET) tr("Created in your Google Drive with the app's columns.", "Criada no seu Google Drive com as colunas da app.") else tr("Created at the top of your Google Drive.", "Criada na raiz do seu Google Drive."),
             onConfirm = {
                 showCreateDialog = false
                 viewModel.create(it)

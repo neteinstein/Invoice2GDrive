@@ -179,7 +179,7 @@ class InvoiceSyncer(
                 invoices.update(invoice.copy(status = InvoiceStatus.FAILED, attempts = attempts, errorMessage = error.message))
                 announce(
                     title = tr("Couldn't save ${label(invoice)}", "Não foi possível guardar ${label(invoice)}"),
-                    message = tr("${error.message} Open Fatura to retry.", "${error.message} Abra a Fatura para tentar novamente."),
+                    message = tr("${error.message} Open the app to retry.", "${error.message} Abra a app para tentar novamente."),
                 )
             }
         }

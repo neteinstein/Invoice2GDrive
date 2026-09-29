@@ -70,7 +70,7 @@ fun SignInScreen(
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    tr("Fatura saves scanned invoices straight to a Google Sheet you choose.", "A Fatura guarda as faturas digitalizadas diretamente numa Google Sheet à sua escolha."),
+                    tr("Scanned invoices are saved straight to a Google Sheet you choose, with a photo in your Drive.", "Os recibos digitalizados são guardados diretamente numa Google Sheet à sua escolha, com a foto no seu Drive."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = FaturaColors.Muted,
                     textAlign = TextAlign.Center,
@@ -151,7 +151,7 @@ fun SignInScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                tr("By continuing you agree to Fatura's Terms of Service and Privacy Policy.", "Ao continuar, aceita os Termos de Serviço e a Política de Privacidade da Fatura."),
+                tr("By continuing you agree to the Terms of Service and Privacy Policy.", "Ao continuar, aceita os Termos de Serviço e a Política de Privacidade."),
                 style = MaterialTheme.typography.bodySmall,
                 color = FaturaColors.Muted,
                 textAlign = TextAlign.Center,

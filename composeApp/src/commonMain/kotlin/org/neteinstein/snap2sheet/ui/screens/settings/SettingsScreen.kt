@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.settings
 
+import org.neteinstein.snap2sheet.platform.appName
+
 import org.neteinstein.snap2sheet.platform.tr
 import org.neteinstein.snap2sheet.ui.components.CopyrightFooter
 
@@ -228,7 +230,7 @@ fun SettingsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    Text("Fatura v1.0.0", style = MaterialTheme.typography.bodySmall, color = FaturaColors.Muted)
+                    Text("$appName v1.0.0", style = MaterialTheme.typography.bodySmall, color = FaturaColors.Muted)
                     CopyrightFooter()
                 }
             }

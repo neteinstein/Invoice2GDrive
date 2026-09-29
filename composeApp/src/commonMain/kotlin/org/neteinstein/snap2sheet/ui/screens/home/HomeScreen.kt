@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.home
 
+import org.neteinstein.snap2sheet.platform.appName
+
 import org.neteinstein.snap2sheet.platform.tr
 
 import androidx.compose.foundation.background
@@ -61,7 +63,7 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Fatura", style = MaterialTheme.typography.titleLarge, color = FaturaColors.Ink)
+                Text(appName, style = MaterialTheme.typography.titleLarge, color = FaturaColors.Ink)
             }
             Box(
                 modifier = Modifier.size(36.dp).clip(CircleShape).background(FaturaColors.AccentSoft).clickable(onClick = onSettings),

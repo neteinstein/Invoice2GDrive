@@ -8,3 +8,6 @@ val isPortuguese: Boolean = deviceLanguageTag().lowercase().startsWith("pt")
 
 /** Picks the English or Portuguese text for the device language. */
 fun tr(en: String, pt: String): String = if (isPortuguese) pt else en
+
+/** The app's display name. */
+val appName: String = tr("Invoices → Google Drive", "Recibos → Google Drive")

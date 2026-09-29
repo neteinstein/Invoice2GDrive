@@ -272,7 +272,7 @@ class GoogleSheetsGateway(
         return when (response.status) {
             HttpStatusCode.Unauthorized -> SheetsException(tr("Your Google session expired. Sign in again.", "A sua sessão Google expirou. Inicie sessão novamente."), SheetsException.Kind.NOT_SIGNED_IN)
             HttpStatusCode.Forbidden -> SheetsException(
-                googleMessage ?: tr("Fatura doesn't have access to that spreadsheet.", "A Fatura não tem acesso a essa folha de cálculo."),
+                googleMessage ?: tr("The app doesn't have access to that spreadsheet.", "A app não tem acesso a essa folha de cálculo."),
                 SheetsException.Kind.PERMISSION,
             )
             HttpStatusCode.NotFound -> SheetsException(tr("That spreadsheet or folder no longer exists.", "Essa folha de cálculo ou pasta já não existe."), SheetsException.Kind.NOT_FOUND)

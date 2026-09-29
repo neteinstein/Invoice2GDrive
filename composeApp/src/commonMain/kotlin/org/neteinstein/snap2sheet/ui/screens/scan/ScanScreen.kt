@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.scan
 
+import org.neteinstein.snap2sheet.platform.appName
+
 import org.neteinstein.snap2sheet.platform.tr
 
 import androidx.compose.animation.core.LinearEasing
@@ -223,7 +225,7 @@ private fun ScanLine() {
 private fun PermissionPrompt(denied: Boolean, canOpenSettings: Boolean, onAllow: () -> Unit, onOpenSettings: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(24.dp)) {
         Text(
-            if (denied) tr("Camera access is off. Turn it on to scan QR codes.", "O acesso à câmara está desligado. Ative-o para ler códigos QR.") else tr("Fatura needs the camera to scan QR codes.", "A Fatura precisa da câmara para ler códigos QR."),
+            if (denied) tr("Camera access is off. Turn it on to scan QR codes.", "O acesso à câmara está desligado. Ative-o para ler códigos QR.") else tr("$appName needs the camera to scan QR codes.", "$appName precisa da câmara para ler códigos QR."),
             style = MaterialTheme.typography.bodySmall,
             color = Color.White,
             textAlign = TextAlign.Center,

@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.welcome
 
+import org.neteinstein.snap2sheet.platform.appName
+
 import org.neteinstein.snap2sheet.platform.tr
 import org.neteinstein.snap2sheet.ui.components.CopyrightFooter
 
@@ -73,7 +75,7 @@ fun WelcomeScreen(onContinue: () -> Unit) {
                 FaturaIcons.Grid(tint = FaturaColors.Accent, size = 34.dp)
             }
             Spacer(Modifier.height(18.dp))
-            Text("Fatura", style = MaterialTheme.typography.headlineMedium, color = FaturaColors.Ink)
+            Text(appName, style = MaterialTheme.typography.headlineMedium, color = FaturaColors.Ink)
             Spacer(Modifier.height(6.dp))
             Text(
                 text = tr("Scan invoice QR codes.\nFill your spreadsheet automatically.", "Digitalize códigos QR de faturas.\nPreencha a folha de cálculo automaticamente."),
