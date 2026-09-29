@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.data.sync
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -116,7 +118,7 @@ class InvoiceSyncer(
         var invoice = queued
         try {
             val spreadsheetId = invoice.destinationSpreadsheetId
-                ?: throw SheetsException("No spreadsheet was chosen for this invoice.", SheetsException.Kind.NOT_FOUND)
+                ?: throw SheetsException(tr("No spreadsheet was chosen for this invoice.", "Não foi escolhida nenhuma folha de cálculo para esta fatura."), SheetsException.Kind.NOT_FOUND)
             val rules = settings.appendRules.value
 
             // 1. Duplicate check first, so a duplicate doesn't leave an orphan photo in Drive.
@@ -132,14 +134,14 @@ class InvoiceSyncer(
             val photo = invoice.photo
             if (photo != null && invoice.driveFileId == null) {
                 val folderId = invoice.destinationFolderId
-                    ?: throw SheetsException("No Drive folder was chosen for this invoice.", SheetsException.Kind.NOT_FOUND)
+                    ?: throw SheetsException(tr("No Drive folder was chosen for this invoice.", "Não foi escolhida nenhuma pasta do Drive para esta fatura."), SheetsException.Kind.NOT_FOUND)
                 val bytes = invoices.loadPhoto(photo)
                 if (bytes != null) {
                     val uploaded = gateway.uploadFile(folderId, InvoiceSheetLayout.photoFileName(invoice, photo.extension), photo.mimeType, bytes)
                     invoice = invoice.copy(driveFileId = uploaded.id, driveFileLink = uploaded.link)
                     invoices.update(invoice)
                 } else {
-                    invoice = invoice.copy(warnings = invoice.warnings + "The photo was lost before it could be uploaded.")
+                    invoice = invoice.copy(warnings = invoice.warnings + tr("The photo was lost before it could be uploaded.", "A foto perdeu-se antes de poder ser carregada."))
                 }
             }
 
@@ -162,7 +164,7 @@ class InvoiceSyncer(
             throw e
         } catch (e: Exception) {
             val error = e as? SheetsException
-                ?: SheetsException(e.message ?: "Something went wrong while saving.", SheetsException.Kind.OTHER, e)
+                ?: SheetsException(e.message ?: tr("Something went wrong while saving.", "Ocorreu um erro ao guardar."), SheetsException.Kind.OTHER, e)
             val attempts = invoice.attempts + 1
             if (error.isTransient && attempts < MAX_ATTEMPTS) {
                 val backoff = BACKOFF.getOrElse(attempts - 1) { BACKOFF.last() }
@@ -170,14 +172,14 @@ class InvoiceSyncer(
                     invoice.copy(
                         attempts = attempts,
                         nextAttemptAtEpochMillis = (clock.now() + backoff).toEpochMilliseconds(),
-                        errorMessage = "${error.message} Retrying automatically…",
+                        errorMessage = tr("${error.message} Retrying automatically…", "${error.message} A tentar novamente de forma automática…"),
                     )
                 )
             } else {
                 invoices.update(invoice.copy(status = InvoiceStatus.FAILED, attempts = attempts, errorMessage = error.message))
                 announce(
-                    title = "Couldn't save ${label(invoice)}",
-                    message = "${error.message} Open Fatura to retry.",
+                    title = tr("Couldn't save ${label(invoice)}", "Não foi possível guardar ${label(invoice)}"),
+                    message = tr("${error.message} Open the app to retry.", "${error.message} Abra a app para tentar novamente."),
                 )
             }
         }
@@ -189,15 +191,15 @@ class InvoiceSyncer(
         invoices.update(done)
         when (done.status) {
             InvoiceStatus.DUPLICATE -> announce(
-                title = "Already saved: ${label(done)}",
-                message = "It's already in ${done.destinationSpreadsheetName}${tab?.let { " ($it)" }.orEmpty()}, so it was skipped.",
+                title = tr("Already saved: ${label(done)}", "Já guardada: ${label(done)}"),
+                message = tr("It's already in ${done.destinationSpreadsheetName}${tab?.let { " ($it)" }.orEmpty()}, so it was skipped.", "Já existe em ${done.destinationSpreadsheetName}${tab?.let { " ($it)" }.orEmpty()}, por isso foi ignorada."),
             )
             else -> announce(
-                title = "Saved ${label(done)}",
+                title = tr("Saved ${label(done)}", "Guardada ${label(done)}"),
                 message = buildString {
-                    append("Added to ${done.destinationSpreadsheetName}")
-                    if (done.driveFileId != null) append(" · photo in ${done.destinationFolderName}")
-                    if (done.status == InvoiceStatus.NEEDS_REVIEW) append(". Worth a second look.")
+                    append(tr("Added to ${done.destinationSpreadsheetName}", "Adicionada a ${done.destinationSpreadsheetName}"))
+                    if (done.driveFileId != null) append(tr(" · photo in ${done.destinationFolderName}", " · foto em ${done.destinationFolderName}"))
+                    if (done.status == InvoiceStatus.NEEDS_REVIEW) append(tr(". Worth a second look.", ". Convém rever."))
                 },
             )
         }
@@ -209,7 +211,7 @@ class InvoiceSyncer(
     }
 
     private fun label(invoice: Invoice): String =
-        listOf(invoice.merchantName.ifBlank { "invoice" }, Formatting.euros(invoice.total)).joinToString(" · ")
+        listOf(invoice.merchantName.ifBlank { tr("invoice", "fatura") }, Formatting.euros(invoice.total)).joinToString(" · ")
 
     companion object {
         const val MAX_ATTEMPTS = 6

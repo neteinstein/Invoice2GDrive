@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.review
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -109,7 +111,7 @@ class ReviewViewModel(
         form.update { it.copy(isSaving = true) }
         invoiceRepository.submitDraft(spreadsheet, folder)
         syncer.kick()
-        messages.show("Saving to ${spreadsheet.name} in the background — you'll be notified when it's done.")
+        messages.show(tr("Saving to ${spreadsheet.name} in the background — you'll be notified when it's done.", "A guardar em ${spreadsheet.name} em segundo plano — será notificado quando terminar."))
         _events.value = ReviewEvent.SAVED
     }
 
@@ -125,14 +127,14 @@ class ReviewViewModel(
         ReviewField.DOCUMENT_TYPE -> draft.copy(documentType = text.trim().uppercase()) to null
         ReviewField.DOCUMENT_NUMBER -> draft.copy(documentNumber = text.trim()) to null
         ReviewField.ATCUD -> draft.copy(atcud = text.trim()) to null
-        ReviewField.DATE -> Formatting.parseDate(text)?.let { draft.copy(issueDate = it) to null } ?: (null to "Use DD/MM/YYYY")
+        ReviewField.DATE -> Formatting.parseDate(text)?.let { draft.copy(issueDate = it) to null } ?: (null to tr("Use DD/MM/YYYY", "Use DD/MM/AAAA"))
         ReviewField.TAX_BASE -> amount(text) { draft.copy(taxBase = it) }
         ReviewField.VAT -> amount(text) { draft.copy(vat = it) }
         ReviewField.TOTAL -> amount(text) { draft.copy(total = it) }
     }
 
     private inline fun amount(text: String, set: (Double) -> Invoice): Pair<Invoice?, String?> =
-        Formatting.parseAmount(text)?.let { set(it) to null } ?: (null to "Not an amount")
+        Formatting.parseAmount(text)?.let { set(it) to null } ?: (null to tr("Not an amount", "Não é um valor"))
 
     private fun valuesFor(invoice: Invoice): Map<ReviewField, String> = mapOf(
         ReviewField.MERCHANT to invoice.merchantName,

@@ -1,5 +1,8 @@
 package org.neteinstein.snap2sheet.ui.screens.signin
 
+import org.neteinstein.snap2sheet.platform.tr
+import org.neteinstein.snap2sheet.ui.components.CopyrightFooter
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -60,14 +63,14 @@ fun SignInScreen(
                 }
                 Spacer(Modifier.height(16.dp))
                 Text(
-                    "Connect your Google Account",
+                    tr("Connect your Google Account", "Ligue a sua conta Google"),
                     style = MaterialTheme.typography.headlineSmall,
                     color = FaturaColors.Ink,
                     textAlign = TextAlign.Center,
                 )
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "Fatura saves scanned invoices straight to a Google Sheet you choose.",
+                    tr("Scanned invoices are saved straight to a Google Sheet you choose, with a photo in your Drive.", "Os recibos digitalizados são guardados diretamente numa Google Sheet à sua escolha, com a foto no seu Drive."),
                     style = MaterialTheme.typography.bodyMedium,
                     color = FaturaColors.Muted,
                     textAlign = TextAlign.Center,
@@ -77,9 +80,9 @@ fun SignInScreen(
             Spacer(Modifier.height(24.dp))
 
             org.neteinstein.snap2sheet.ui.components.FaturaCard(containerColor = FaturaColors.SurfaceMuted, contentPadding = 4.dp) {
-                PermissionRow("View and manage your Google Sheets")
-                PermissionRow("Upload invoice photos to your Google Drive")
-                PermissionRow("See your name and email address")
+                PermissionRow(tr("View and manage your Google Sheets", "Ver e gerir as suas Google Sheets"))
+                PermissionRow(tr("Upload invoice photos to your Google Drive", "Carregar fotos de faturas para o seu Google Drive"))
+                PermissionRow(tr("See your name and email address", "Ver o seu nome e endereço de email"))
             }
 
             Spacer(Modifier.height(24.dp))
@@ -91,19 +94,19 @@ fun SignInScreen(
 
             if (state.isGoogleSignInAvailable) {
                 FaturaPrimaryButton(
-                    text = if (state.isSigningIn) "Connecting…" else "Continue with Google",
+                    text = if (state.isSigningIn) tr("Connecting…", "A ligar…") else tr("Continue with Google", "Continuar com o Google"),
                     onClick = viewModel::signInWithGoogle,
                     enabled = !state.isSigningIn,
                 ) {
                     GoogleGlyph()
                 }
                 if (clientIdSetup?.isEnteredInApp == true) {
-                    FaturaGhostButton(text = "Change OAuth client ID", onClick = viewModel::editClientId)
+                    FaturaGhostButton(text = tr("Change OAuth client ID", "Alterar ID de cliente OAuth"), onClick = viewModel::editClientId)
                 }
             } else if (clientIdSetup != null) {
                 Text(
-                    "To connect Google, paste the ID of your own OAuth client (Google Cloud Console, " +
-                        "APIs & Services, Credentials). Type: ${clientIdSetup.clientType}. " +
+                    tr("To connect Google, paste the ID of your own OAuth client (Google Cloud Console, ", "Para ligar ao Google, cole o ID do seu próprio cliente OAuth (Google Cloud Console, ") +
+                        tr("APIs & Services, Credentials). Type: ${clientIdSetup.clientType}. ", "APIs e serviços, Credenciais). Tipo: ${clientIdSetup.clientType}. ") +
                         "${clientIdSetup.registration}.",
                     style = MaterialTheme.typography.bodySmall,
                     color = FaturaColors.Muted,
@@ -111,12 +114,12 @@ fun SignInScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(12.dp))
-                FaturaPrimaryButton(text = "Enter OAuth client ID", onClick = viewModel::editClientId) {
+                FaturaPrimaryButton(text = tr("Enter OAuth client ID", "Introduzir ID de cliente OAuth"), onClick = viewModel::editClientId) {
                     GoogleGlyph()
                 }
             } else {
                 Text(
-                    "Google sign-in isn't set up in this build.",
+                    tr("Google sign-in isn't set up in this build.", "O início de sessão Google não está configurado nesta versão."),
                     style = MaterialTheme.typography.bodySmall,
                     color = FaturaColors.Muted,
                     textAlign = TextAlign.Center,
@@ -127,16 +130,16 @@ fun SignInScreen(
 
         if (state.isEditingClientId && clientIdSetup != null) {
             TextInputDialog(
-                title = "Google OAuth client ID",
-                label = "Client ID",
-                confirmText = "Save",
+                title = tr("Google OAuth client ID", "ID de cliente OAuth do Google"),
+                label = tr("Client ID", "ID de cliente"),
+                confirmText = tr("Save", "Guardar"),
                 onConfirm = viewModel::saveClientId,
                 onDismiss = viewModel::dismissClientIdEditor,
                 initialValue = if (clientIdSetup.isEnteredInApp) clientIdSetup.clientId else "",
                 placeholder = "1234-abc.apps.googleusercontent.com",
                 supportingText = state.clientIdError
-                    ?: "A \"${clientIdSetup.clientType}\" client. ${clientIdSetup.registration}.",
-                extraAction = if (clientIdSetup.isEnteredInApp) ("Remove" to viewModel::resetClientId) else null,
+                    ?: tr("A \"${clientIdSetup.clientType}\" client. ${clientIdSetup.registration}.", "Um cliente \"${clientIdSetup.clientType}\". ${clientIdSetup.registration}."),
+                extraAction = if (clientIdSetup.isEnteredInApp) (tr("Remove", "Remover") to viewModel::resetClientId) else null,
             )
         }
 
@@ -148,11 +151,13 @@ fun SignInScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                "By continuing you agree to Fatura's Terms of Service and Privacy Policy.",
+                tr("By continuing you agree to the Terms of Service and Privacy Policy.", "Ao continuar, aceita os Termos de Serviço e a Política de Privacidade."),
                 style = MaterialTheme.typography.bodySmall,
                 color = FaturaColors.Muted,
                 textAlign = TextAlign.Center,
             )
+            Spacer(Modifier.height(10.dp))
+            CopyrightFooter()
         }
     }
 }

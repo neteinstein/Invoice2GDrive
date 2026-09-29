@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.targets
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +32,7 @@ import kotlin.time.Clock
  */
 enum class SaveTargetsMode { SETUP, SAVE, DEFAULTS }
 
-enum class TargetKind(val label: String) { SPREADSHEET("Spreadsheet"), FOLDER("Drive folder") }
+enum class TargetKind(val label: String) { SPREADSHEET(tr("Spreadsheet", "Folha de cálculo")), FOLDER(tr("Drive folder", "Pasta do Drive")) }
 
 data class TargetRow(val item: DriveItem, val subtitle: String)
 
@@ -132,7 +134,7 @@ class SaveTargetsViewModel(
     fun refresh() {
         viewModelScope.launch {
             val failure = listOf(spreadsheets, folders).map { it.refresh() }.firstNotNullOfOrNull { it.exceptionOrNull() }
-            if (failure != null) local.update { it.copy(error = failure.message ?: "Couldn't load your Google Drive.") }
+            if (failure != null) local.update { it.copy(error = failure.message ?: tr("Couldn't load your Google Drive.", "Não foi possível carregar o seu Google Drive.")) }
         }
     }
 
@@ -174,9 +176,9 @@ class SaveTargetsViewModel(
                 .onSuccess { created ->
                     if (mode == SaveTargetsMode.SAVE) select(created)
                     else if (mode == SaveTargetsMode.SETUP && tab == TargetKind.SPREADSHEET && folders.selected.value == null) selectTab(TargetKind.FOLDER)
-                    messages.show("Created \"${created.name}\" in your Google Drive.")
+                    messages.show(tr("Created \"${created.name}\" in your Google Drive.", "\"${created.name}\" criado no seu Google Drive."))
                 }
-                .onFailure { e -> local.update { it.copy(error = e.message ?: "Couldn't create it.") } }
+                .onFailure { e -> local.update { it.copy(error = e.message ?: tr("Couldn't create it.", "Não foi possível criar.")) } }
             local.update { it.copy(isCreating = false) }
         }
     }
@@ -187,7 +189,7 @@ class SaveTargetsViewModel(
         val spreadsheet = current.spreadsheet
         val folder = current.folder
         if (spreadsheet == null || folder == null) {
-            local.update { it.copy(error = "Pick a spreadsheet and a folder first.") }
+            local.update { it.copy(error = tr("Pick a spreadsheet and a folder first.", "Escolha primeiro uma folha de cálculo e uma pasta.")) }
             return
         }
         if (mode == SaveTargetsMode.SAVE) {
@@ -197,7 +199,7 @@ class SaveTargetsViewModel(
             }
             if (invoiceRepository.submitDraft(spreadsheet, folder) != null) {
                 syncer.kick()
-                messages.show("Saving in the background — you'll be notified when it's done.")
+                messages.show(tr("Saving in the background — you'll be notified when it's done.", "A guardar em segundo plano — será notificado quando terminar."))
             }
         }
         local.update { it.copy(done = true) }

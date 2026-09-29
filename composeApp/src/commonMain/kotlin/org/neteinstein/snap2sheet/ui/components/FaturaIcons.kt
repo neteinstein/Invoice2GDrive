@@ -21,6 +21,45 @@ import androidx.compose.ui.unit.dp
  */
 object FaturaIcons {
 
+    /** Sun (shown in dark mode, to switch to light). */
+    @Composable
+    fun Sun(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 20.dp) {
+        Canvas(modifier.size(size)) {
+            val w = this.size.width
+            val c = androidx.compose.ui.geometry.Offset(w / 2, w / 2)
+            drawCircle(tint, radius = w * 0.2f, center = c)
+            val stroke = w * 0.09f
+            for (i in 0 until 8) {
+                val a = i * kotlin.math.PI / 4
+                val dx = kotlin.math.cos(a).toFloat()
+                val dy = kotlin.math.sin(a).toFloat()
+                drawLine(
+                    tint,
+                    start = androidx.compose.ui.geometry.Offset(c.x + dx * w * 0.32f, c.y + dy * w * 0.32f),
+                    end = androidx.compose.ui.geometry.Offset(c.x + dx * w * 0.44f, c.y + dy * w * 0.44f),
+                    strokeWidth = stroke,
+                    cap = StrokeCap.Round,
+                )
+            }
+        }
+    }
+
+    /** Crescent moon (shown in light mode, to switch to dark). */
+    @Composable
+    fun Moon(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 20.dp) {
+        Canvas(modifier.size(size)) {
+            val w = this.size.width
+            val disc = androidx.compose.ui.graphics.Path().apply {
+                addOval(androidx.compose.ui.geometry.Rect(androidx.compose.ui.geometry.Offset(w * 0.15f, w * 0.15f), androidx.compose.ui.geometry.Size(w * 0.7f, w * 0.7f)))
+            }
+            val bite = androidx.compose.ui.graphics.Path().apply {
+                addOval(androidx.compose.ui.geometry.Rect(androidx.compose.ui.geometry.Offset(w * 0.4f, w * 0.05f), androidx.compose.ui.geometry.Size(w * 0.65f, w * 0.65f)))
+            }
+            val moon = androidx.compose.ui.graphics.Path.combine(androidx.compose.ui.graphics.PathOperation.Difference, disc, bite)
+            drawPath(moon, tint)
+        }
+    }
+
     @Composable
     fun Back(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 20.dp) {
         Canvas(modifier.size(size)) {

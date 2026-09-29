@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.data.remote
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -257,9 +259,9 @@ class GoogleSheetsGateway(
         } catch (e: SheetsException) {
             throw e
         } catch (e: NotSignedInException) {
-            throw SheetsException(e.message ?: "Sign in to Google again.", SheetsException.Kind.NOT_SIGNED_IN, e)
+            throw SheetsException(e.message ?: tr("Sign in to Google again.", "Inicie sessão no Google novamente."), SheetsException.Kind.NOT_SIGNED_IN, e)
         } catch (e: Exception) {
-            throw SheetsException("Couldn't reach Google. Check your connection and try again.", SheetsException.Kind.NETWORK, e)
+            throw SheetsException(tr("Couldn't reach Google. Check your connection and try again.", "Não foi possível contactar o Google. Verifique a ligação e tente novamente."), SheetsException.Kind.NETWORK, e)
         }
     }
 
@@ -268,13 +270,13 @@ class GoogleSheetsGateway(
             lenientJson.parseToJsonElement(response.bodyAsText()).jsonObject["error"]?.jsonObject?.get("message")?.jsonPrimitive?.content
         }.getOrNull()
         return when (response.status) {
-            HttpStatusCode.Unauthorized -> SheetsException("Your Google session expired. Sign in again.", SheetsException.Kind.NOT_SIGNED_IN)
+            HttpStatusCode.Unauthorized -> SheetsException(tr("Your Google session expired. Sign in again.", "A sua sessão Google expirou. Inicie sessão novamente."), SheetsException.Kind.NOT_SIGNED_IN)
             HttpStatusCode.Forbidden -> SheetsException(
-                googleMessage ?: "Fatura doesn't have access to that spreadsheet.",
+                googleMessage ?: tr("The app doesn't have access to that spreadsheet.", "A app não tem acesso a essa folha de cálculo."),
                 SheetsException.Kind.PERMISSION,
             )
-            HttpStatusCode.NotFound -> SheetsException("That spreadsheet or folder no longer exists.", SheetsException.Kind.NOT_FOUND)
-            else -> SheetsException(googleMessage ?: "Google Sheets returned ${response.status.value}.", SheetsException.Kind.OTHER)
+            HttpStatusCode.NotFound -> SheetsException(tr("That spreadsheet or folder no longer exists.", "Essa folha de cálculo ou pasta já não existe."), SheetsException.Kind.NOT_FOUND)
+            else -> SheetsException(googleMessage ?: tr("Google Sheets returned ${response.status.value}.", "O Google Sheets devolveu ${response.status.value}."), SheetsException.Kind.OTHER)
         }
     }
 

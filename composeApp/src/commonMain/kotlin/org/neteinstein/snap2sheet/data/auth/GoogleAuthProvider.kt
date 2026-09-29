@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.data.auth
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import io.ktor.client.HttpClient
 import org.neteinstein.snap2sheet.data.local.KeyValueStore
 
@@ -22,7 +24,7 @@ object GoogleScopes {
 }
 
 /** Thrown when an access token can't be obtained without showing Google's sign-in UI again. */
-class NotSignedInException(message: String = "Your Google session expired. Sign in again.") : Exception(message)
+class NotSignedInException(message: String = tr("Your Google session expired. Sign in again.", "A sua sessão Google expirou. Inicie sessão novamente.")) : Exception(message)
 
 /**
  * The platform's Google OAuth flow, reduced to "give me an access token for [GoogleScopes.ALL]".

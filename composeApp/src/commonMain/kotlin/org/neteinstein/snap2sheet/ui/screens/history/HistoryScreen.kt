@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.history
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,7 +40,7 @@ fun HistoryScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface).navigationBarsPadding()) {
-        FaturaTopBar(title = "History", onBack = onBack)
+        FaturaTopBar(title = tr("History", "Histórico"), onBack = onBack)
 
         LazyRow(
             modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
@@ -52,7 +54,7 @@ fun HistoryScreen(
 
         if (state.isEmpty) {
             Text(
-                if (state.filter == HistoryFilter.ALL) "No invoices yet. Scan one from Home." else "Nothing here.",
+                if (state.filter == HistoryFilter.ALL) tr("No invoices yet. Scan one from Home.", "Ainda sem faturas. Digitalize uma a partir do Início.") else tr("Nothing here.", "Nada aqui."),
                 style = MaterialTheme.typography.bodySmall,
                 color = FaturaColors.Muted,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),

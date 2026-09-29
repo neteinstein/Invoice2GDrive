@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.data.auth
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import org.neteinstein.snap2sheet.data.local.KeyValueStore
 
 private const val KEY_CLIENT_ID = "google_oauth_client_id"
@@ -32,7 +34,7 @@ class OAuthClientSetup(
             store.remove(KEY_CLIENT_ID)
             return
         }
-        require(isValid(trimmed)) { "That doesn't look like an OAuth client ID. It ends in .apps.googleusercontent.com." }
+        require(isValid(trimmed)) { tr("That doesn't look like an OAuth client ID. It ends in .apps.googleusercontent.com.", "Isto não parece um ID de cliente OAuth. Termina em .apps.googleusercontent.com.") }
         store.putString(KEY_CLIENT_ID, trimmed)
     }
 

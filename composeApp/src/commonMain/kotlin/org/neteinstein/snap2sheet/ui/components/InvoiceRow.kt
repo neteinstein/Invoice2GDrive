@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.components
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,6 +58,6 @@ fun InvoiceRow(invoice: Invoice, subtitle: String, modifier: Modifier = Modifier
 }
 
 /** The merchant's name, or its NIF when the name was never filled in. */
-fun Invoice.displayName(): String = merchantName.ifBlank { "NIF ${Nif.format(nifEmitente)}".takeIf { nifEmitente.isNotBlank() } ?: "Invoice" }
+fun Invoice.displayName(): String = merchantName.ifBlank { "NIF ${Nif.format(nifEmitente)}".takeIf { nifEmitente.isNotBlank() } ?: tr("Invoice", "Fatura") }
 
 fun formatAmount(value: Double): String = Formatting.amount(value)

@@ -1,5 +1,9 @@
 package org.neteinstein.snap2sheet.ui.screens.home
 
+import org.neteinstein.snap2sheet.platform.appName
+
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,7 +63,7 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Text("Fatura", style = MaterialTheme.typography.titleLarge, color = FaturaColors.Ink)
+                Text(appName, style = MaterialTheme.typography.titleLarge, color = FaturaColors.Ink)
             }
             Box(
                 modifier = Modifier.size(36.dp).clip(CircleShape).background(FaturaColors.AccentSoft).clickable(onClick = onSettings),
@@ -89,21 +93,21 @@ fun HomeScreen(
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                     FaturaCard(containerColor = FaturaColors.SurfaceMuted, modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            "THIS MONTH",
+                            tr("THIS MONTH", "ESTE MÊS"),
                             style = MaterialTheme.typography.labelMedium,
                             color = FaturaColors.Muted,
                         )
                         Spacer(Modifier.height(6.dp))
                         Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Text("${state.invoicesThisMonth}", style = MaterialTheme.typography.headlineSmall, color = FaturaColors.Ink)
-                            Text("invoices ·", style = MaterialTheme.typography.bodyMedium, color = FaturaColors.Muted)
+                            Text(tr("invoices ·", "faturas ·"), style = MaterialTheme.typography.bodyMedium, color = FaturaColors.Muted)
                             Text("€${formatAmount(state.totalThisMonth)}", style = MaterialTheme.typography.titleSmall, color = FaturaColors.Ink)
                         }
                         Spacer(Modifier.height(10.dp))
                         Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                             FaturaIcons.Document(tint = FaturaColors.Accent, size = 15.dp)
                             Text(
-                                state.primarySpreadsheetName ?: "No spreadsheet yet",
+                                state.primarySpreadsheetName ?: tr("No spreadsheet yet", "Ainda sem folha de cálculo"),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = FaturaColors.Accent,
                             )
@@ -125,8 +129,8 @@ fun HomeScreen(
                                 FaturaIcons.Camera(tint = androidx.compose.ui.graphics.Color.White, size = 22.dp)
                             }
                             Column {
-                                Text("Scan a new invoice", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
-                                Text("Point your camera at the QR code", style = MaterialTheme.typography.bodySmall, color = FaturaColors.Muted)
+                                Text(tr("Scan a new invoice", "Digitalizar nova fatura"), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold, color = FaturaColors.Ink)
+                                Text(tr("Point your camera at the QR code", "Aponte a câmara ao código QR"), style = MaterialTheme.typography.bodySmall, color = FaturaColors.Muted)
                             }
                         }
                     }
@@ -137,8 +141,8 @@ fun HomeScreen(
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)) {
                     SectionTitle(
-                        text = if (state.savingCount > 0) "Recent scans · ${state.savingCount} saving" else "Recent scans",
-                        trailing = "See all",
+                        text = if (state.savingCount > 0) tr("Recent scans · ${state.savingCount} saving", "Digitalizações recentes · ${state.savingCount} a guardar") else tr("Recent scans", "Digitalizações recentes"),
+                        trailing = tr("See all", "Ver tudo"),
                         onTrailingClick = onHistory,
                     )
                 }
@@ -147,7 +151,7 @@ fun HomeScreen(
             if (state.recentInvoices.isEmpty()) {
                 item {
                     Text(
-                        "Nothing scanned yet. Your invoices will show up here once they're saved.",
+                        tr("Nothing scanned yet. Your invoices will show up here once they're saved.", "Ainda nada digitalizado. As suas faturas aparecerão aqui depois de guardadas."),
                         style = MaterialTheme.typography.bodySmall,
                         color = FaturaColors.Muted,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -188,14 +192,14 @@ private fun FailedSavesBanner(count: Int, onRetry: () -> Unit) {
     FaturaCard(containerColor = FaturaColors.DangerSoft, borderColor = FaturaColors.DangerSoft, modifier = Modifier.fillMaxWidth()) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Text(
-                if (count == 1) "1 invoice didn't reach its spreadsheet." else "$count invoices didn't reach their spreadsheet.",
+                if (count == 1) tr("1 invoice didn't reach its spreadsheet.", "1 fatura não chegou à folha de cálculo.") else tr("$count invoices didn't reach their spreadsheet.", "$count faturas não chegaram à folha de cálculo."),
                 style = MaterialTheme.typography.bodySmall,
                 fontWeight = FontWeight.SemiBold,
                 color = FaturaColors.Danger,
                 modifier = Modifier.weight(1f),
             )
             Text(
-                "Retry",
+                tr("Retry", "Tentar novamente"),
                 style = MaterialTheme.typography.labelMedium,
                 color = FaturaColors.Danger,
                 modifier = Modifier.clickable(onClick = onRetry),

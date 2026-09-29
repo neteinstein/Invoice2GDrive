@@ -2,7 +2,7 @@
 
 An app to snap a picture of an invoice and place it on Google Sheets.
 
-The product name shown in the app itself is **Fatura** — scan an invoice's QR code and it's
+The product name shown in the app itself is **Invoices → Google Drive** (**Recibos → Google Drive** in Portuguese) — scan an invoice's QR code and it's
 parsed and appended as a row to a Google Sheet you choose, no typing required.
 
 ## Stack

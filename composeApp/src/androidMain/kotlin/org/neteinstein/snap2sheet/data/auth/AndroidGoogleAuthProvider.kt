@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.data.auth
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import android.accounts.Account
 import io.ktor.client.HttpClient
 import android.app.Activity
@@ -41,7 +43,7 @@ class AndroidGoogleAuthProvider : GoogleAuthProvider {
     override val isConfigured: Boolean = true
 
     override suspend fun signIn(): String {
-        val activity = AndroidAppContext.currentActivity ?: error("Open Fatura to sign in.")
+        val activity = AndroidAppContext.currentActivity ?: error(tr("Open the app to sign in.", "Abra a app para iniciar sessão."))
         val client = Identity.getAuthorizationClient(activity)
         val result = try {
             client.authorize(request).await()
@@ -50,7 +52,7 @@ class AndroidGoogleAuthProvider : GoogleAuthProvider {
         }
         val granted = if (result.hasResolution()) resolve(activity, result) else result
         grantedEmail = granted.toGoogleSignInAccount()?.email
-        return granted.accessToken?.also { lastToken = it } ?: error("Google didn't return an access token.")
+        return granted.accessToken?.also { lastToken = it } ?: error(tr("Google didn't return an access token.", "O Google não devolveu um token de acesso."))
     }
 
     override suspend fun accessToken(forceRefresh: Boolean): String {
@@ -97,7 +99,7 @@ class AndroidGoogleAuthProvider : GoogleAuthProvider {
                     launcher.unregister()
                     val data = activityResult.data
                     if (activityResult.resultCode != Activity.RESULT_OK || data == null) {
-                        continuation.resumeWithException(IllegalStateException("Sign-in was cancelled."))
+                        continuation.resumeWithException(IllegalStateException(tr("Sign-in was cancelled.", "O início de sessão foi cancelado.")))
                         return@register
                     }
                     try {
@@ -109,7 +111,7 @@ class AndroidGoogleAuthProvider : GoogleAuthProvider {
                 continuation.invokeOnCancellation { launcher.unregister() }
                 val intent = pending.pendingIntent ?: run {
                     launcher.unregister()
-                    continuation.resumeWithException(IllegalStateException("Google sign-in couldn't start."))
+                    continuation.resumeWithException(IllegalStateException(tr("Google sign-in couldn't start.", "Não foi possível iniciar o início de sessão Google.")))
                     return@suspendCancellableCoroutine
                 }
                 launcher.launch(IntentSenderRequest.Builder(intent.intentSender).build())
@@ -117,11 +119,11 @@ class AndroidGoogleAuthProvider : GoogleAuthProvider {
         }
 
     private fun describe(e: ApiException): String = when (e.statusCode) {
-        CommonStatusCodes.CANCELED -> "Sign-in was cancelled."
-        CommonStatusCodes.NETWORK_ERROR -> "No connection. Check your network and try again."
+        CommonStatusCodes.CANCELED -> tr("Sign-in was cancelled.", "O início de sessão foi cancelado.")
+        CommonStatusCodes.NETWORK_ERROR -> tr("No connection. Check your network and try again.", "Sem ligação. Verifique a rede e tente novamente.")
         CommonStatusCodes.DEVELOPER_ERROR ->
-            "This build isn't registered with Google (OAuth client for this package/SHA-1 missing)."
-        else -> "Google sign-in failed (${CommonStatusCodes.getStatusCodeString(e.statusCode)})."
+            tr("This build isn't registered with Google (OAuth client for this package/SHA-1 missing).", "Esta versão não está registada no Google (falta o cliente OAuth para este pacote/SHA-1).")
+        else -> tr("Google sign-in failed (${CommonStatusCodes.getStatusCodeString(e.statusCode)}).", "O início de sessão Google falhou (${CommonStatusCodes.getStatusCodeString(e.statusCode)}).")
     }
 }
 

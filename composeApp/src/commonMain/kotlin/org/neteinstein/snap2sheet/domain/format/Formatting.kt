@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.domain.format
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -48,7 +50,7 @@ object Formatting {
         return runCatching { if (parts[0].length == 4) LocalDate(a, b, c) else LocalDate(c, b, a) }.getOrNull()
     }
 
-    private val weekdays = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+    private val weekdays = tr("Mon,Tue,Wed,Thu,Fri,Sat,Sun", "Seg,Ter,Qua,Qui,Sex,Sáb,Dom").split(",")
 
     /** "Today · 14:32", "Yesterday · 18:05", "Mon · 09:14", or "14/09/2026" for anything older than a week. */
     fun scannedAt(epochMillis: Long, nowEpochMillis: Long, timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
@@ -56,43 +58,43 @@ object Formatting {
         val today = Instant.fromEpochMilliseconds(nowEpochMillis).toLocalDateTime(timeZone).date
         val time = scanned.hour.toString().padStart(2, '0') + ":" + scanned.minute.toString().padStart(2, '0')
         return when {
-            scanned.date == today -> "Today · $time"
-            scanned.date == today.minus(DatePeriod(days = 1)) -> "Yesterday · $time"
+            scanned.date == today -> tr("Today · $time", "Hoje · $time")
+            scanned.date == today.minus(DatePeriod(days = 1)) -> tr("Yesterday · $time", "Ontem · $time")
             scanned.date > today.minus(DatePeriod(days = 7)) -> "${weekdays[scanned.date.dayOfWeek.ordinal]} · $time"
             else -> date(scanned.date)
         }
     }
 
-    /** History section header for a scan: "Today", "Yesterday", "This week", "This month" or "September 2026". */
+    /** History section header for a scan: tr("Today", "Hoje"), tr("Yesterday", "Ontem"), tr("This week", "Esta semana"), tr("This month", "Este mês") or "September 2026". */
     fun scanGroup(epochMillis: Long, nowEpochMillis: Long, timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
         val scanned = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(timeZone).date
         val today = Instant.fromEpochMilliseconds(nowEpochMillis).toLocalDateTime(timeZone).date
         return when {
-            scanned == today -> "Today"
-            scanned == today.minus(DatePeriod(days = 1)) -> "Yesterday"
-            scanned > today.minus(DatePeriod(days = 7)) -> "This week"
-            scanned.year == today.year && scanned.month == today.month -> "This month"
+            scanned == today -> tr("Today", "Hoje")
+            scanned == today.minus(DatePeriod(days = 1)) -> tr("Yesterday", "Ontem")
+            scanned > today.minus(DatePeriod(days = 7)) -> tr("This week", "Esta semana")
+            scanned.year == today.year && scanned.month == today.month -> tr("This month", "Este mês")
             else -> monthName(scanned.month.number) + " " + scanned.year
         }
     }
 
-    /** "Edited today", "Edited 3 days ago", "Edited 14/09/2026". */
+    /** tr("Edited today", "Editada hoje"), "Edited 3 days ago", "Edited 14/09/2026". */
     fun lastEdited(epochMillis: Long?, nowEpochMillis: Long, timeZone: TimeZone = TimeZone.currentSystemDefault()): String {
-        if (epochMillis == null) return "Google Sheets"
+        if (epochMillis == null) return tr("Google Sheets", "Google Sheets")
         val edited = Instant.fromEpochMilliseconds(epochMillis).toLocalDateTime(timeZone).date
         val today = Instant.fromEpochMilliseconds(nowEpochMillis).toLocalDateTime(timeZone).date
         val days = today.toEpochDays() - edited.toEpochDays()
         return when {
-            days <= 0L -> "Edited today"
-            days == 1L -> "Edited yesterday"
-            days < 7L -> "Edited $days days ago"
-            days < 14L -> "Edited last week"
-            else -> "Edited ${date(edited)}"
+            days <= 0L -> tr("Edited today", "Editada hoje")
+            days == 1L -> tr("Edited yesterday", "Editada ontem")
+            days < 7L -> tr("Edited $days days ago", "Editada há $days dias")
+            days < 14L -> tr("Edited last week", "Editada na semana passada")
+            else -> tr("Edited ${date(edited)}", "Editada em ${date(edited)}")
         }
     }
 
     fun monthName(month: Int): String = listOf(
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December",
+        tr("January", "Janeiro"), tr("February", "Fevereiro"), tr("March", "Março"), tr("April", "Abril"), tr("May", "Maio"), tr("June", "Junho"),
+        tr("July", "Julho"), tr("August", "Agosto"), tr("September", "Setembro"), tr("October", "Outubro"), tr("November", "Novembro"), tr("December", "Dezembro"),
     )[month - 1]
 }

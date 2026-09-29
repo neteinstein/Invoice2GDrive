@@ -1,6 +1,16 @@
 package org.neteinstein.snap2sheet
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.ui.draw.clip
+import org.neteinstein.snap2sheet.domain.model.AppTheme
+import org.neteinstein.snap2sheet.platform.showsThemeToggle
+import org.neteinstein.snap2sheet.platform.systemPrefersDark
+import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -43,6 +53,26 @@ fun App(
     FaturaTheme(theme = theme) {
         Box(modifier = Modifier.fillMaxSize()) {
             AppNavigation()
+            if (showsThemeToggle) {
+                val dark = when (theme) {
+                    AppTheme.LIGHT -> false
+                    AppTheme.DARK -> true
+                    AppTheme.SYSTEM -> systemPrefersDark()
+                }
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(8.dp)
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(FaturaColors.Surface.copy(alpha = 0.9f))
+                        .clickable { settingsRepository.setTheme(if (dark) AppTheme.LIGHT else AppTheme.DARK) },
+                ) {
+                    if (dark) FaturaIcons.Sun(tint = FaturaColors.Ink) else FaturaIcons.Moon(tint = FaturaColors.Ink)
+                }
+            }
             SnackbarHost(
                 hostState = snackbarHostState,
                 // Clear of the bottom nav bar and primary buttons.

@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.screens.targets
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -70,14 +72,14 @@ fun SaveTargetsScreen(
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
         FaturaTopBar(
             title = when (mode) {
-                SaveTargetsMode.SETUP -> "Where should invoices go?"
-                SaveTargetsMode.SAVE -> "Save this invoice to"
-                SaveTargetsMode.DEFAULTS -> "Defaults"
+                SaveTargetsMode.SETUP -> tr("Where should invoices go?", "Onde devem ficar as faturas?")
+                SaveTargetsMode.SAVE -> tr("Save this invoice to", "Guardar esta fatura em")
+                SaveTargetsMode.DEFAULTS -> tr("Defaults", "Predefinições")
             },
             onBack = onBack,
             trailing = {
                 Text(
-                    if (state.isRefreshing) "Refreshing…" else "Refresh",
+                    if (state.isRefreshing) tr("Refreshing…", "A atualizar…") else tr("Refresh", "Atualizar"),
                     style = MaterialTheme.typography.labelMedium,
                     color = FaturaColors.Accent,
                     modifier = if (state.isRefreshing) Modifier else Modifier.clickable(onClick = viewModel::refresh),
@@ -87,8 +89,8 @@ fun SaveTargetsScreen(
 
         if (mode == SaveTargetsMode.SETUP) {
             Text(
-                "Each invoice becomes a row in a spreadsheet, and its photo goes into a Drive folder. " +
-                    "Pick the defaults now — you can change them per invoice or in Settings.",
+                tr("Each invoice becomes a row in a spreadsheet, and its photo goes into a Drive folder. ", "Cada fatura torna-se uma linha numa folha de cálculo e a sua foto vai para uma pasta do Drive. ") +
+                    tr("Pick the defaults now — you can change them per invoice or in Settings.", "Escolha já as predefinições — pode alterá-las por fatura ou nas Definições."),
                 style = MaterialTheme.typography.bodySmall,
                 color = FaturaColors.Muted,
                 modifier = Modifier.padding(horizontal = 20.dp).padding(bottom = 12.dp),
@@ -116,7 +118,7 @@ fun SaveTargetsScreen(
             Box(modifier = Modifier.weight(1f)) {
                 if (state.query.isEmpty()) {
                     Text(
-                        if (state.tab == TargetKind.SPREADSHEET) "Search your Google Sheets" else "Search your Drive folders",
+                        if (state.tab == TargetKind.SPREADSHEET) tr("Search your Google Sheets", "Pesquisar nas suas Google Sheets") else tr("Search your Drive folders", "Pesquisar nas suas pastas do Drive"),
                         style = MaterialTheme.typography.bodyMedium,
                         color = FaturaColors.Subtle,
                     )
@@ -137,7 +139,7 @@ fun SaveTargetsScreen(
                 item {
                     Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(top = 14.dp)) {
                         Notice(
-                            text = "$error  Tap to dismiss.",
+                            text = tr("$error  Tap to dismiss.", "$error  Toque para fechar."),
                             color = FaturaColors.Danger,
                             background = FaturaColors.DangerSoft,
                             modifier = Modifier.clickable(onClick = viewModel::dismissError),
@@ -148,7 +150,7 @@ fun SaveTargetsScreen(
 
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 18.dp)) {
-                    SectionTitle(text = if (state.tab == TargetKind.SPREADSHEET) "Your spreadsheets" else "Your folders")
+                    SectionTitle(text = if (state.tab == TargetKind.SPREADSHEET) tr("Your spreadsheets", "As suas folhas de cálculo") else tr("Your folders", "As suas pastas"))
                 }
             }
 
@@ -156,9 +158,9 @@ fun SaveTargetsScreen(
                 item {
                     Text(
                         when {
-                            state.isRefreshing -> "Loading…"
-                            state.query.isNotBlank() -> "Nothing matches \"${state.query}\"."
-                            else -> "Nothing here yet. Create one below."
+                            state.isRefreshing -> tr("Loading…", "A carregar…")
+                            state.query.isNotBlank() -> tr("Nothing matches \"${state.query}\".", "Nada corresponde a \"${state.query}\".")
+                            else -> tr("Nothing here yet. Create one below.", "Ainda nada aqui. Crie um abaixo.")
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = FaturaColors.Muted,
@@ -183,9 +185,9 @@ fun SaveTargetsScreen(
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 6.dp)) {
                     FaturaDashedButton(
                         text = when {
-                            state.isCreating -> "Creating…"
-                            state.tab == TargetKind.SPREADSHEET -> "Create new spreadsheet"
-                            else -> "Create new folder"
+                            state.isCreating -> tr("Creating…", "A criar…")
+                            state.tab == TargetKind.SPREADSHEET -> tr("Create new spreadsheet", "Criar nova folha de cálculo")
+                            else -> tr("Create new folder", "Criar nova pasta")
                         },
                         onClick = { if (!state.isCreating) showCreateDialog = true },
                     ) {
@@ -199,15 +201,15 @@ fun SaveTargetsScreen(
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
                     if (mode == SaveTargetsMode.SAVE) {
                         ToggleCard(
-                            title = "Make these my defaults",
-                            subtitle = "Otherwise they're used for this invoice only.",
+                            title = tr("Make these my defaults", "Usar como predefinições"),
+                            subtitle = tr("Otherwise they're used for this invoice only.", "Caso contrário, só são usadas para esta fatura."),
                             checked = state.makeDefault,
                             onCheckedChange = viewModel::onMakeDefaultChange,
                         )
                     } else {
                         ToggleCard(
-                            title = "Always save to my defaults",
-                            subtitle = "Skip this choice after reviewing an invoice. You can change this anytime in Settings.",
+                            title = tr("Always save to my defaults", "Guardar sempre nas predefinições"),
+                            subtitle = tr("Skip this choice after reviewing an invoice. You can change this anytime in Settings.", "Salta esta escolha após rever uma fatura. Pode alterar isto a qualquer momento nas Definições."),
                             checked = state.alwaysSaveToDefaults,
                             onCheckedChange = viewModel::onAlwaysSaveChange,
                         )
@@ -218,7 +220,7 @@ fun SaveTargetsScreen(
             item {
                 Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 20.dp)) {
                     FaturaCard(modifier = Modifier.fillMaxWidth()) {
-                        Text("APPEND RULES", style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
+                        Text(tr("APPEND RULES", "REGRAS DE ADIÇÃO"), style = MaterialTheme.typography.labelSmall, color = FaturaColors.MutedStrong)
                         Spacer(Modifier.height(6.dp))
                         Text(
                             appendRulesSummary(state.appendRules),
@@ -234,9 +236,9 @@ fun SaveTargetsScreen(
         Box(modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(20.dp)) {
             FaturaPrimaryButton(
                 text = when (mode) {
-                    SaveTargetsMode.SETUP -> "Start scanning"
-                    SaveTargetsMode.SAVE -> "Save & Continue"
-                    SaveTargetsMode.DEFAULTS -> "Done"
+                    SaveTargetsMode.SETUP -> tr("Start scanning", "Começar a digitalizar")
+                    SaveTargetsMode.SAVE -> tr("Save & Continue", "Guardar e continuar")
+                    SaveTargetsMode.DEFAULTS -> tr("Done", "Concluído")
                 },
                 onClick = viewModel::confirm,
                 enabled = state.canContinue,
@@ -246,11 +248,11 @@ fun SaveTargetsScreen(
 
     if (showCreateDialog) {
         TextInputDialog(
-            title = if (state.tab == TargetKind.SPREADSHEET) "New spreadsheet" else "New Drive folder",
-            label = "Name",
-            confirmText = "Create",
+            title = if (state.tab == TargetKind.SPREADSHEET) tr("New spreadsheet", "Nova folha de cálculo") else tr("New Drive folder", "Nova pasta do Drive"),
+            label = tr("Name", "Nome"),
+            confirmText = tr("Create", "Criar"),
             initialValue = remember(state.tab) { viewModel.suggestedName() },
-            supportingText = if (state.tab == TargetKind.SPREADSHEET) "Created in your Google Drive with Fatura's columns." else "Created at the top of your Google Drive.",
+            supportingText = if (state.tab == TargetKind.SPREADSHEET) tr("Created in your Google Drive with the app's columns.", "Criada no seu Google Drive com as colunas da app.") else tr("Created at the top of your Google Drive.", "Criada na raiz do seu Google Drive."),
             onConfirm = {
                 showCreateDialog = false
                 viewModel.create(it)
@@ -282,7 +284,7 @@ private fun TargetSummary(spreadsheet: DriveItem?, folder: DriveItem?, tab: Targ
                 }
                 Spacer(Modifier.height(4.dp))
                 Text(
-                    item?.name ?: "Choose…",
+                    item?.name ?: tr("Choose…", "Escolher…"),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Bold,
                     color = if (item != null) FaturaColors.Ink else FaturaColors.Subtle,
@@ -306,11 +308,11 @@ private fun ToggleCard(title: String, subtitle: String, checked: Boolean, onChec
 }
 
 private fun appendRulesSummary(rules: AppendRules): String = listOfNotNull(
-    "New row per invoice",
-    if (rules.matchColumnsByHeader) "Columns matched by header" else "Fixed column order",
-    if (rules.skipDuplicateInvoices) "Skip duplicate ATCUD" else null,
-    if (rules.newSheetTabEachMonth) "One tab per month" else null,
-    "Photo linked in the row",
+    tr("New row per invoice", "Nova linha por fatura"),
+    if (rules.matchColumnsByHeader) tr("Columns matched by header", "Colunas associadas pelo cabeçalho") else tr("Fixed column order", "Ordem fixa de colunas"),
+    if (rules.skipDuplicateInvoices) tr("Skip duplicate ATCUD", "Ignorar ATCUD duplicado") else null,
+    if (rules.newSheetTabEachMonth) tr("One tab per month", "Um separador por mês") else null,
+    tr("Photo linked in the row", "Foto ligada na linha"),
 ).joinToString(" · ")
 
 @Composable

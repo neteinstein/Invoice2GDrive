@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.data.repository
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.bearerAuth
@@ -60,9 +62,9 @@ class DefaultAccountRepository(
     override suspend fun signInWithGoogle(): GoogleAccount {
         val token = auth.signIn()
         val response = http.get(USERINFO_URL) { bearerAuth(token) }
-        if (!response.status.isSuccess()) error("Signed in, but Google didn't return your profile (${response.status.value}).")
+        if (!response.status.isSuccess()) error(tr("Signed in, but Google didn't return your profile (${response.status.value}).", "Sessão iniciada, mas o Google não devolveu o seu perfil (${response.status.value})."))
         val info: UserInfo = response.body()
-        val email = info.email ?: error("Google didn't share your email address.")
+        val email = info.email ?: error(tr("Google didn't share your email address.", "O Google não partilhou o seu endereço de email."))
         return GoogleAccount(email = email, initials = GoogleAccount.initialsFrom(info.name, email)).also(::setAccount)
     }
 
@@ -73,7 +75,7 @@ class DefaultAccountRepository(
     }
 
     override suspend fun accessToken(forceRefresh: Boolean): String {
-        if (_account.value == null) throw NotSignedInException("Sign in to Google first.")
+        if (_account.value == null) throw NotSignedInException(tr("Sign in to Google first.", "Inicie primeiro sessão no Google."))
         return auth.accessToken(forceRefresh)
     }
 

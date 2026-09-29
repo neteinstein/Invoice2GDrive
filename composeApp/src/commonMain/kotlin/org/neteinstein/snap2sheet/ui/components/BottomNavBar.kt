@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.ui.components
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,10 +54,10 @@ fun BottomNavBar(
                 modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {
-                NavItem("Home", selected == BottomNavTab.HOME, onHome) { tint -> FaturaIcons.Grid(tint = tint, size = 21.dp) }
-                NavItem("History", selected == BottomNavTab.HISTORY, onHistory) { tint -> FaturaIcons.Clock(tint = tint, size = 21.dp) }
+                NavItem(tr("Home", "Início"), selected == BottomNavTab.HOME, onHome) { tint -> FaturaIcons.Grid(tint = tint, size = 21.dp) }
+                NavItem(tr("History", "Histórico"), selected == BottomNavTab.HISTORY, onHistory) { tint -> FaturaIcons.Clock(tint = tint, size = 21.dp) }
                 androidx.compose.foundation.layout.Spacer(Modifier.width(NAV_ITEM_WIDTH))
-                NavItem("Settings", selected == BottomNavTab.SETTINGS, onSettings) { tint -> FaturaIcons.Gear(tint = tint, size = 21.dp) }
+                NavItem(tr("Settings", "Definições"), selected == BottomNavTab.SETTINGS, onSettings) { tint -> FaturaIcons.Gear(tint = tint, size = 21.dp) }
             }
         }
         Box(

@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet.domain.qr
 
+import org.neteinstein.snap2sheet.platform.tr
+
 import kotlinx.datetime.LocalDate
 import kotlin.math.abs
 import kotlin.math.round
@@ -52,19 +54,19 @@ object AtQrCodeParser {
 
     fun parse(payload: String): QrParseResult {
         val fields = parseFields(payload.trim())
-            ?: return QrParseResult.Failure("This QR code isn't a Portuguese invoice (fatura) code.")
+            ?: return QrParseResult.Failure(tr("This QR code isn't a Portuguese invoice (fatura) code.", "Este código QR não é de uma fatura portuguesa."))
 
         val missing = listOf("A" to "NIF emitente", "D" to "document type", "F" to "date", "G" to "document number", "O" to "total")
             .filter { (code, _) -> fields[code].isNullOrBlank() }
             .map { it.second }
         if (missing.isNotEmpty()) {
-            return QrParseResult.Failure("The QR code is missing: ${missing.joinToString()}.")
+            return QrParseResult.Failure(tr("The QR code is missing: ${missing.joinToString()}.", "Ao código QR falta: ${missing.joinToString()}."))
         }
 
         val issueDate = parseCompactDate(fields.getValue("F"))
-            ?: return QrParseResult.Failure("The QR code's date (${fields["F"]}) isn't valid.")
+            ?: return QrParseResult.Failure(tr("The QR code's date (${fields["F"]}) isn't valid.", "A data do código QR (${fields["F"]}) não é válida."))
         val total = parseAmount(fields.getValue("O"))
-            ?: return QrParseResult.Failure("The QR code's total (${fields["O"]}) isn't a number.")
+            ?: return QrParseResult.Failure(tr("The QR code's total (${fields["O"]}) isn't a number.", "O total do código QR (${fields["O"]}) não é um número."))
         val vatFields = regionFields.flatMap { r -> listOf("${r}4", "${r}6", "${r}8") }.mapNotNull { fields[it]?.let(::parseAmount) }
         val stampDuty = fields["M"]?.let(::parseAmount) ?: 0.0
         val totalTaxes = fields["N"]?.let(::parseAmount) ?: roundCents(vatFields.sum() + stampDuty)
@@ -77,11 +79,11 @@ object AtQrCodeParser {
         val status = fields["E"].orEmpty().uppercase()
         val atcud = fields["H"].orEmpty()
 
-        if (status == "A") warnings += "This document was cancelled (anulado) by the issuer."
+        if (status == "A") warnings += tr("This document was cancelled (anulado) by the issuer.", "Este documento foi anulado pelo emitente.")
         if (vatFields.isNotEmpty() && abs(vatFields.sum() + stampDuty - totalTaxes) > 0.011) {
-            warnings += "The VAT breakdown doesn't add up to the total taxes."
+            warnings += tr("The VAT breakdown doesn't add up to the total taxes.", "A discriminação do IVA não corresponde ao total de impostos.")
         }
-        if (totalTaxes > total + 0.001) warnings += "Total taxes exceed the invoice total."
+        if (totalTaxes > total + 0.001) warnings += tr("Total taxes exceed the invoice total.", "O total de impostos excede o total da fatura.")
 
         return QrParseResult.Success(
             data = ScannedInvoiceData(

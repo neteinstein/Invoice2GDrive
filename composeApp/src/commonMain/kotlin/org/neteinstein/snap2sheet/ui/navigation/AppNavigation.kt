@@ -82,7 +82,7 @@ fun AppNavigation(
         composable(Screen.Welcome.route) {
             WelcomeScreen(onContinue = {
                 settingsRepository.setOnboardingCompleted(true)
-                navController.navigate(Screen.SignIn.route) { popUpTo(Screen.Welcome.route) { inclusive = true } }
+                navController.navigate(Screen.SignIn.route)
             })
         }
 
