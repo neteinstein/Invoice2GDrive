@@ -49,6 +49,8 @@ fun CornerEditor(
     val originX = (box.width - drawnW) / 2f
     val originY = (box.height - drawnH) / 2f
 
+    val accent = FaturaColors.Accent
+
     fun toScreen(i: Int) = Offset(originX + corners[i * 2] * drawnW, originY + corners[i * 2 + 1] * drawnH)
 
     Box(
@@ -83,11 +85,11 @@ fun CornerEditor(
                 (1..3).forEach { lineTo(pts[it].x, pts[it].y) }
                 close()
             }
-            drawPath(quad, FaturaColors.Accent.copy(alpha = 0.18f), style = Fill)
-            drawPath(quad, FaturaColors.Accent, style = Stroke(width = 2.dp.toPx()))
+            drawPath(quad, accent.copy(alpha = 0.18f), style = Fill)
+            drawPath(quad, accent, style = Stroke(width = 2.dp.toPx()))
             pts.forEachIndexed { i, p ->
                 drawCircle(Color.White, radius = 13.dp.toPx(), center = p)
-                drawCircle(FaturaColors.Accent, radius = 13.dp.toPx(), center = p, style = Stroke(width = if (i == active) 5.dp.toPx() else 3.dp.toPx()))
+                drawCircle(accent, radius = 13.dp.toPx(), center = p, style = Stroke(width = if (i == active) 5.dp.toPx() else 3.dp.toPx()))
             }
         }
     }
