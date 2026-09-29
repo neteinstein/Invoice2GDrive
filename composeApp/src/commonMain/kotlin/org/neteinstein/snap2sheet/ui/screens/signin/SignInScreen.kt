@@ -97,8 +97,6 @@ fun SignInScreen(
                 ) {
                     GoogleGlyph()
                 }
-                Spacer(Modifier.height(4.dp))
-                FaturaGhostButton(text = "Try it without an account", onClick = viewModel::startDemo)
                 if (clientIdSetup?.isEnteredInApp == true) {
                     FaturaGhostButton(text = "Change OAuth client ID", onClick = viewModel::editClientId)
                 }
@@ -116,18 +114,14 @@ fun SignInScreen(
                 FaturaPrimaryButton(text = "Enter OAuth client ID", onClick = viewModel::editClientId) {
                     GoogleGlyph()
                 }
-                Spacer(Modifier.height(4.dp))
-                FaturaGhostButton(text = "Try it without an account", onClick = viewModel::startDemo)
             } else {
                 Text(
-                    "Google sign-in isn't set up in this build, so Fatura runs in demo mode: spreadsheets are simulated on this device.",
+                    "Google sign-in isn't set up in this build.",
                     style = MaterialTheme.typography.bodySmall,
                     color = FaturaColors.Muted,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Spacer(Modifier.height(12.dp))
-                FaturaPrimaryButton(text = "Try the demo", onClick = viewModel::startDemo)
             }
         }
 

@@ -93,10 +93,6 @@ screen shows what the client needs, which is the page's origin on the web and th
 The ID is saved on the device and can be changed or removed from the same screen. Android never
 needs one.
 
-**Demo mode** ("Try it without an account") is available either way. Spreadsheets are simulated
-in memory on the device (with a short simulated delay, so you can see the background save), and
-nothing reaches Google.
-
 ## Building
 
 ```bash

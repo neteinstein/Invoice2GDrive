@@ -49,7 +49,6 @@ fun SettingsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val cameraPermission = rememberCameraPermissionState()
     val notificationPermission = rememberNotificationPermissionState()
-    val isDemo = state.account?.isDemo == true
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface).navigationBarsPadding()) {
         FaturaTopBar(title = "Settings", onBack = onBack)
@@ -81,11 +80,10 @@ fun SettingsScreen(
                                 Text(
                                     when {
                                         state.account == null -> "Disconnected"
-                                        isDemo -> "Demo mode · nothing leaves this device"
                                         else -> "Connected"
                                     },
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = if (state.account != null && !isDemo) FaturaColors.Success else FaturaColors.Muted,
+                                    color = if (state.account != null) FaturaColors.Success else FaturaColors.Muted,
                                 )
                             }
                         }
@@ -96,7 +94,7 @@ fun SettingsScreen(
                             modifier = Modifier.clickable(onClick = viewModel::signOut),
                         )
                     }
-                    if (state.account != null && !isDemo) {
+                    if (state.account != null) {
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -199,10 +197,9 @@ fun SettingsScreen(
                         label = "Google Sheets & Drive",
                         value = when {
                             state.account == null -> "Not connected"
-                            isDemo -> "Demo mode"
                             else -> "Allowed"
                         },
-                        allowed = state.account != null && !isDemo,
+                        allowed = state.account != null,
                         onClick = null,
                     ) { FaturaIcons.Document(tint = FaturaColors.Muted, size = 17.dp) }
                 }

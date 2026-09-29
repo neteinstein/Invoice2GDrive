@@ -56,11 +56,6 @@ class SignInViewModel(
         }
     }
 
-    fun startDemo() {
-        accountRepository.startDemo()
-        viewModelScope.launch { onSignedIn() }
-    }
-
     fun editClientId() {
         _state.update { it.copy(isEditingClientId = true, clientIdError = null) }
     }

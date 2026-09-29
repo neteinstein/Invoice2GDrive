@@ -16,7 +16,6 @@ import org.neteinstein.snap2sheet.data.auth.platformGoogleAuthProvider
 import org.neteinstein.snap2sheet.data.local.platformKeyValueStore
 import org.neteinstein.snap2sheet.data.local.platformPhotoStore
 import org.neteinstein.snap2sheet.data.remote.AccountAwareSheetsGateway
-import org.neteinstein.snap2sheet.data.remote.DemoSheetsGateway
 import org.neteinstein.snap2sheet.data.remote.GoogleSheetsGateway
 import org.neteinstein.snap2sheet.data.remote.SheetsGateway
 import org.neteinstein.snap2sheet.data.repository.AccountRepository
@@ -77,8 +76,7 @@ internal val appModule = module {
     single { DefaultAccountRepository(get(), get(), get(), get()) } bind AccountRepository::class
 
     single<SheetsGateway>(named("google")) { GoogleSheetsGateway(get(), get<AccountRepository>(), get()) }
-    single<SheetsGateway>(named("demo")) { DemoSheetsGateway(get()) }
-    single<SheetsGateway> { AccountAwareSheetsGateway(get(), get(named("google")), get(named("demo"))) }
+    single<SheetsGateway> { AccountAwareSheetsGateway(get(), get(named("google"))) }
 
     single { DefaultSpreadsheetRepository(get(), get(), get()) } bind SpreadsheetRepository::class
     single { DefaultFolderRepository(get(), get(), get()) } bind FolderRepository::class

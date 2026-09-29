@@ -8,7 +8,7 @@ private val CLIENT_ID_PATTERN = Regex("""^\d+-[a-z0-9]+\.apps\.googleusercontent
 /**
  * The OAuth client ID a platform signs in with, on platforms that need one in code (iOS, web).
  * An ID entered in the app wins over the one baked into the build (`GoogleClientConfig`), so a
- * build made without one isn't stuck in demo mode: the user can paste their own client's ID on
+ * build made without one can't be stuck without sign-in: the user can paste their own client's ID on
  * the Connect Google screen.
  */
 class OAuthClientSetup(

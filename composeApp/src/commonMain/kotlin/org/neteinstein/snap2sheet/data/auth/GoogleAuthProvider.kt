@@ -32,7 +32,7 @@ class NotSignedInException(message: String = "Your Google session expired. Sign 
  * [OAuthClientSetup] for entering one in the app instead.
  */
 interface GoogleAuthProvider {
-    /** False while there's no OAuth client ID for the platform — only demo mode is offered then. */
+    /** False while there's no OAuth client ID for the platform. */
     val isConfigured: Boolean
 
     /**

@@ -10,7 +10,7 @@ and iOS from a single `composeApp` module.
 ui/          Compose screens, view models, navigation, theme, MessageCenter (app-wide snackbar)
 domain/      Pure Kotlin: models, the AT fiscal QR parser (qr/), validation (NIF, totals),
              the invoice → spreadsheet-row layout (sheets/), date/amount formatting
-data/        Repositories, the SheetsGateway (Google REST + in-memory demo), Google auth,
+data/        Repositories, the SheetsGateway (Google REST), Google auth,
              KeyValueStore + PhotoStore, and sync/InvoiceSyncer (the background save queue)
 platform/    expect/actual: camera permission + QR scanner, photo picker, notifications,
              background scheduling
@@ -39,8 +39,7 @@ announced after navigating home, go through `MessageCenter`.
   Drive v3 REST APIs through Ktor. It lists spreadsheets, creates one with a header row, and appends
   a row after resolving the tab, header row and duplicate check. It retries once with a refreshed
   token on 401 and maps failures to `SheetsException`s with user-facing messages.
-  `DemoSheetsGateway` applies the same rules in memory. `AccountAwareSheetsGateway` routes between
-  the two depending on whether the signed-in account is a demo account.
+  `AccountAwareSheetsGateway` fails with `NOT_SIGNED_IN` until an account is signed in.
 - **GoogleAuthProvider** (`expect fun platformGoogleAuthProvider`) reduces each platform's OAuth
   flow to "give me an access token":
   - Android: Google Identity Services `AuthorizationClient`. Play services caches and refreshes the tokens.

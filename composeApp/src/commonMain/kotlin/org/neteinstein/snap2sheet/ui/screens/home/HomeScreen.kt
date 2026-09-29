@@ -60,15 +60,6 @@ fun HomeScreen(
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text("Fatura", style = MaterialTheme.typography.titleLarge, color = FaturaColors.Ink)
-                if (state.account?.isDemo == true) {
-                    Text(
-                        "DEMO",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = FaturaColors.Warning,
-                        modifier = Modifier.background(FaturaColors.WarningSoft, androidx.compose.foundation.shape.RoundedCornerShape(999.dp))
-                            .padding(horizontal = 8.dp, vertical = 2.dp),
-                    )
-                }
             }
             Box(
                 modifier = Modifier.size(36.dp).clip(CircleShape).background(FaturaColors.AccentSoft).clickable(onClick = onSettings),
