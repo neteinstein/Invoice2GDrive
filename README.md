@@ -87,10 +87,15 @@ Fatura needs an OAuth client per platform in a Google Cloud project:
    google.iosClientId=1234-def.apps.googleusercontent.com   # or GOOGLE_IOS_CLIENT_ID
    ```
 
-A build without a client ID for its platform offers **demo mode** only. Spreadsheets are simulated
+A build without a client ID for its platform can still connect Google. The Connect Google screen
+asks for the client ID instead: tap **Enter OAuth client ID** and paste your client's ID. The
+screen shows what the client needs, which is the page's origin on the web and the bundle ID on iOS.
+The ID is saved on the device and can be changed or removed from the same screen. Android never
+needs one.
+
+**Demo mode** ("Try it without an account") is available either way. Spreadsheets are simulated
 in memory on the device (with a short simulated delay, so you can see the background save), and
-nothing reaches Google. Demo mode is also available on configured
-builds, via "Try it without an account".
+nothing reaches Google.
 
 ## Building
 

@@ -34,6 +34,7 @@ import org.neteinstein.snap2sheet.ui.components.Notice
 import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
 import org.neteinstein.snap2sheet.ui.components.IconBadge
+import org.neteinstein.snap2sheet.ui.components.TextInputDialog
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 
 @Composable
@@ -43,6 +44,7 @@ fun SignInScreen(
     viewModel: SignInViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val clientIdSetup = state.clientIdSetup
     LaunchedEffect(state.signedIn) { if (state.signedIn) onSignedIn() }
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
@@ -97,6 +99,25 @@ fun SignInScreen(
                 }
                 Spacer(Modifier.height(4.dp))
                 FaturaGhostButton(text = "Try it without an account", onClick = viewModel::startDemo)
+                if (clientIdSetup?.isEnteredInApp == true) {
+                    FaturaGhostButton(text = "Change OAuth client ID", onClick = viewModel::editClientId)
+                }
+            } else if (clientIdSetup != null) {
+                Text(
+                    "To connect Google, paste the ID of your own OAuth client (Google Cloud Console, " +
+                        "APIs & Services, Credentials). Type: ${clientIdSetup.clientType}. " +
+                        "${clientIdSetup.registration}.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = FaturaColors.Muted,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(12.dp))
+                FaturaPrimaryButton(text = "Enter OAuth client ID", onClick = viewModel::editClientId) {
+                    GoogleGlyph()
+                }
+                Spacer(Modifier.height(4.dp))
+                FaturaGhostButton(text = "Try it without an account", onClick = viewModel::startDemo)
             } else {
                 Text(
                     "Google sign-in isn't set up in this build, so Fatura runs in demo mode: spreadsheets are simulated on this device.",
@@ -108,6 +129,21 @@ fun SignInScreen(
                 Spacer(Modifier.height(12.dp))
                 FaturaPrimaryButton(text = "Try the demo", onClick = viewModel::startDemo)
             }
+        }
+
+        if (state.isEditingClientId && clientIdSetup != null) {
+            TextInputDialog(
+                title = "Google OAuth client ID",
+                label = "Client ID",
+                confirmText = "Save",
+                onConfirm = viewModel::saveClientId,
+                onDismiss = viewModel::dismissClientIdEditor,
+                initialValue = if (clientIdSetup.isEnteredInApp) clientIdSetup.clientId else "",
+                placeholder = "1234-abc.apps.googleusercontent.com",
+                supportingText = state.clientIdError
+                    ?: "A \"${clientIdSetup.clientType}\" client. ${clientIdSetup.registration}.",
+                extraAction = if (clientIdSetup.isEnteredInApp) ("Remove" to viewModel::resetClientId) else null,
+            )
         }
 
         Column(

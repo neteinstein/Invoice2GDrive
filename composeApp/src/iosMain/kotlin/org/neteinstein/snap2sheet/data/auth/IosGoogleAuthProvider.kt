@@ -20,6 +20,8 @@ import platform.AuthenticationServices.ASWebAuthenticationSession
 import platform.AuthenticationServices.ASWebAuthenticationSessionErrorCodeCanceledLogin
 import platform.CoreCrypto.CC_SHA256
 import platform.CoreCrypto.CC_SHA256_DIGEST_LENGTH
+import org.neteinstein.snap2sheet.data.local.KeyValueStore
+import platform.Foundation.NSBundle
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLComponents
 import platform.Foundation.NSURLQueryItem
@@ -43,14 +45,16 @@ private const val KEYCHAIN_REFRESH_TOKEN = "google_refresh_token"
 /**
  * Google's OAuth 2.0 flow for native apps (authorization code + PKCE, RFC 8252) run in an
  * `ASWebAuthenticationSession`, so no Google Sign-In SDK has to be linked into the Xcode project.
- * Needs an "iOS" OAuth client ID (`google.iosClientId`, see composeApp/build.gradle.kts); its
- * reversed form is the redirect URI scheme. The refresh token is kept in the Keychain.
+ * Needs an "iOS" OAuth client ID (`google.iosClientId`, see composeApp/build.gradle.kts, or
+ * entered in the app — see [OAuthClientSetup]); its reversed form is the redirect URI scheme. The refresh token is kept in the Keychain.
  */
 class IosGoogleAuthProvider(
     private val http: HttpClient,
-    private val clientId: String = GoogleClientConfig.IOS_CLIENT_ID,
+    override val clientSetup: OAuthClientSetup,
     private val clock: Clock = Clock.System,
 ) : GoogleAuthProvider {
+
+    private val clientId: String get() = clientSetup.clientId
 
     private val keychain = Keychain(service = "org.neteinstein.snap2sheet.google")
     private var accessToken: String? = null
@@ -69,7 +73,7 @@ class IosGoogleAuthProvider(
     private val redirectUri: String get() = "$redirectScheme:/oauth2redirect"
 
     override suspend fun signIn(): String {
-        check(isConfigured) { "Google sign-in isn't configured for this build." }
+        check(isConfigured) { "Enter your Google OAuth client ID first." }
         val verifier = base64Url(randomBytes(48))
         val state = base64Url(randomBytes(16))
         val authUrl = NSURLComponents(string = AUTH_ENDPOINT).apply {
@@ -202,4 +206,13 @@ private fun sha256(input: ByteArray): ByteArray {
 
 private fun base64Url(bytes: ByteArray): String = Base64.UrlSafe.encode(bytes).trimEnd('=')
 
-actual fun platformGoogleAuthProvider(http: HttpClient): GoogleAuthProvider = IosGoogleAuthProvider(http)
+actual fun platformGoogleAuthProvider(http: HttpClient, store: KeyValueStore): GoogleAuthProvider =
+    IosGoogleAuthProvider(
+        http = http,
+        clientSetup = OAuthClientSetup(
+            store = store,
+            buildTimeClientId = GoogleClientConfig.IOS_CLIENT_ID,
+            clientType = "iOS",
+            registration = "Bundle ID: " + (NSBundle.mainBundle.bundleIdentifier ?: "org.neteinstein.snap2sheet"),
+        ),
+    )
