@@ -268,7 +268,73 @@
     });
   }
 
+  // Solves the 3x3 homography H (h33 = 1) mapping the 4 points `from` onto `to` (flat [x0,y0,...]).
+  function homography(from, to) {
+    var a = [], b = [], i, j, k;
+    for (i = 0; i < 4; i++) {
+      var x = from[i * 2], y = from[i * 2 + 1], u = to[i * 2], v = to[i * 2 + 1];
+      a.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); b.push(u);
+      a.push([0, 0, 0, x, y, 1, -v * x, -v * y]); b.push(v);
+    }
+    for (i = 0; i < 8; i++) {
+      var p = i;
+      for (j = i + 1; j < 8; j++) if (Math.abs(a[j][i]) > Math.abs(a[p][i])) p = j;
+      if (Math.abs(a[p][i]) < 1e-9) return null;
+      var t = a[i]; a[i] = a[p]; a[p] = t; var tb = b[i]; b[i] = b[p]; b[p] = tb;
+      for (j = i + 1; j < 8; j++) {
+        var f = a[j][i] / a[i][i];
+        for (k = i; k < 8; k++) a[j][k] -= f * a[i][k];
+        b[j] -= f * b[i];
+      }
+    }
+    var h = new Array(8);
+    for (i = 7; i >= 0; i--) {
+      var sum = b[i];
+      for (j = i + 1; j < 8; j++) sum -= a[i][j] * h[j];
+      h[i] = sum / a[i][i];
+    }
+    return h;
+  }
+
   window.faturaPhoto = {
+    // Straightens the quad `corners` ("x,y,..." fractions: TL, TR, BR, BL) of a base64 JPEG into a
+    // rectangle. Resolves base64 JPEG, or '' when it can't be done.
+    crop: function (base64, corners) {
+      var c = String(corners).split(',').map(Number);
+      return fetch('data:image/jpeg;base64,' + base64).then(function (r) { return r.blob(); }).then(createImageBitmap).then(function (bitmap) {
+        var w = bitmap.width, h = bitmap.height;
+        var src = c.map(function (v, i) { return v * (i % 2 === 0 ? w : h); });
+        function dist(a, b) { return Math.hypot(src[a * 2] - src[b * 2], src[a * 2 + 1] - src[b * 2 + 1]); }
+        var outW = Math.round((dist(0, 1) + dist(3, 2)) / 2), outH = Math.round((dist(0, 3) + dist(1, 2)) / 2);
+        if (outW < 16 || outH < 16) return '';
+        var inv = homography([0, 0, outW, 0, outW, outH, 0, outH], src);
+        if (!inv) return '';
+        var from = document.createElement('canvas');
+        from.width = w; from.height = h;
+        var fctx = from.getContext('2d');
+        fctx.drawImage(bitmap, 0, 0);
+        var sp = fctx.getImageData(0, 0, w, h).data;
+        var to = document.createElement('canvas');
+        to.width = outW; to.height = outH;
+        var tctx = to.getContext('2d');
+        var out = tctx.createImageData(outW, outH), dp = out.data;
+        for (var y = 0; y < outH; y++) {
+          for (var x = 0; x < outW; x++) {
+            var d = inv[6] * x + inv[7] * y + 1;
+            var sx = (inv[0] * x + inv[1] * y + inv[2]) / d - 0.5, sy = (inv[3] * x + inv[4] * y + inv[5]) / d - 0.5;
+            var x0 = Math.max(0, Math.min(w - 2, Math.floor(sx))), y0 = Math.max(0, Math.min(h - 2, Math.floor(sy)));
+            var fx = Math.max(0, Math.min(1, sx - x0)), fy = Math.max(0, Math.min(1, sy - y0));
+            var i00 = (y0 * w + x0) * 4, i10 = i00 + 4, i01 = i00 + w * 4, i11 = i01 + 4, o = (y * outW + x) * 4;
+            for (var ch = 0; ch < 4; ch++) {
+              dp[o + ch] = (sp[i00 + ch] * (1 - fx) + sp[i10 + ch] * fx) * (1 - fy) + (sp[i01 + ch] * (1 - fx) + sp[i11 + ch] * fx) * fy;
+            }
+          }
+        }
+        tctx.putImageData(out, 0, 0);
+        return new Promise(function (resolve) { to.toBlob(resolve, 'image/jpeg', 0.85); }).then(readAsBase64);
+      }).catch(function () { return ''; });
+    },
+
     // Resolves {base64, mimeType} or {cancelled:true}. useCamera asks mobile browsers to open the
     // camera directly; otherwise the file picker also accepts PDFs (invoices received by email).
     pick: function (useCamera) {

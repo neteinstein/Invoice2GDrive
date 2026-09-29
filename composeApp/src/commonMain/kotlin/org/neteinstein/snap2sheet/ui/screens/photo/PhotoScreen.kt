@@ -34,6 +34,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.neteinstein.snap2sheet.domain.format.Formatting
 import org.neteinstein.snap2sheet.platform.PhotoSource
 import org.neteinstein.snap2sheet.platform.rememberPhotoPicker
+import org.neteinstein.snap2sheet.ui.components.CornerEditor
 import org.neteinstein.snap2sheet.ui.components.FaturaDashedButton
 import org.neteinstein.snap2sheet.ui.components.FaturaGhostButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
@@ -56,6 +57,19 @@ fun PhotoScreen(
 
     if (invoice == null) {
         LaunchedEffect(Unit) { onBack() }
+        return
+    }
+
+    val pending = state.pendingBytes
+    if (pending != null) {
+        CropStep(
+            bytes = pending,
+            corners = state.corners,
+            onCornersChange = viewModel::onCornersChange,
+            onCrop = { viewModel.confirmCrop(crop = true) },
+            onUseFull = { viewModel.confirmCrop(crop = false) },
+            onCancel = viewModel::cancelCrop,
+        )
         return
     }
 
@@ -108,6 +122,45 @@ fun PhotoScreen(
                 FaturaDashedButton(text = "Choose from library", onClick = { pick(PhotoSource.LIBRARY) })
                 FaturaGhostButton(text = "Skip — save the data only", onClick = onContinue)
             }
+        }
+    }
+}
+
+/** Lets the user drag the four corners onto the invoice's borders before the photo is saved. */
+@Composable
+private fun CropStep(
+    bytes: ByteArray,
+    corners: FloatArray,
+    onCornersChange: (FloatArray) -> Unit,
+    onCrop: () -> Unit,
+    onUseFull: () -> Unit,
+    onCancel: () -> Unit,
+) {
+    val bitmap = remember(bytes) { runCatching { bytes.decodeToImageBitmap() }.getOrNull() }
+    if (bitmap == null) {
+        LaunchedEffect(bytes) { onUseFull() }
+        return
+    }
+    Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
+        FaturaTopBar(title = "Crop the invoice", onBack = onCancel)
+        Text(
+            "Drag the four corners onto the borders of the invoice.",
+            style = MaterialTheme.typography.bodySmall,
+            color = FaturaColors.Muted,
+            modifier = Modifier.padding(horizontal = 20.dp),
+        )
+        CornerEditor(
+            image = bitmap,
+            corners = corners,
+            onCornersChange = onCornersChange,
+            modifier = Modifier.weight(1f).fillMaxWidth().padding(20.dp).clip(RoundedCornerShape(18.dp)),
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.navigationBars).padding(horizontal = 20.dp).padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            FaturaPrimaryButton(text = "Crop", onClick = onCrop)
+            FaturaGhostButton(text = "Use full photo", onClick = onUseFull)
         }
     }
 }
