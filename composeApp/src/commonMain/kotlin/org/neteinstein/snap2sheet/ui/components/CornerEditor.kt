@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -41,6 +42,10 @@ fun CornerEditor(
 ) {
     var box by remember { mutableStateOf(IntSize.Zero) }
     var active by remember { mutableStateOf(-1) }
+    // The drag handler below is installed once per image/size, so it must read the latest corners
+    // and callback through these holders instead of the values captured when it was created.
+    val currentCorners by rememberUpdatedState(corners)
+    val currentOnCornersChange by rememberUpdatedState(onCornersChange)
 
     // Where the image is drawn (ContentScale.Fit, centred) inside the box.
     val scale = if (box.width == 0) 1f else minOf(box.width / image.width.toFloat(), box.height / image.height.toFloat())
@@ -51,7 +56,7 @@ fun CornerEditor(
 
     val accent = FaturaColors.Accent
 
-    fun toScreen(i: Int) = Offset(originX + corners[i * 2] * drawnW, originY + corners[i * 2 + 1] * drawnH)
+    fun toScreen(i: Int) = Offset(originX + currentCorners[i * 2] * drawnW, originY + currentCorners[i * 2 + 1] * drawnH)
 
     Box(
         modifier = modifier
@@ -70,10 +75,10 @@ fun CornerEditor(
                     val i = active
                     if (i < 0 || drawnW <= 0f || drawnH <= 0f) return@detectDragGestures
                     change.consume()
-                    val next = corners.copyOf()
+                    val next = currentCorners.copyOf()
                     next[i * 2] = (next[i * 2] + drag.x / drawnW).coerceIn(0f, 1f)
                     next[i * 2 + 1] = (next[i * 2 + 1] + drag.y / drawnH).coerceIn(0f, 1f)
-                    onCornersChange(next)
+                    currentOnCornersChange(next)
                 }
             },
     ) {
