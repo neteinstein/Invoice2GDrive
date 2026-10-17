@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/logo/logo.svg" alt="Snap2Sheet logo" width="128"></p>
+
 # Snap2Sheet
 
 An app to snap a picture of an invoice and place it on Google Sheets.
