@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Privacy Policy · Invoices → Google Drive</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="legal.css">
+</head>
+<body>
+<main>
+    <header>
+        <img src="favicon.svg" alt="">
+        <h1>Privacy Policy</h1>
+    </header>
+    <p class="updated">Last updated: 18 October 2026</p>
+
+    <p>This policy explains how <strong>Invoices → Google Drive</strong> (also called Recibos → Google
+        Drive or Snap2Sheet; "the app") handles your information. The app is made by Pedro Vicente
+        ("I", "me") and runs on Android, iOS and the web.</p>
+
+    <p><strong>In short:</strong> the app has no server of its own. Your invoices, photos and Google
+        data go directly from your device to your own Google account. I don't collect, see, store,
+        sell or share any of it. The app has no analytics, advertising or tracking.</p>
+
+    <h2>1. Information the app handles</h2>
+    <p>The app only processes information to do what you ask it to do:</p>
+    <ul>
+        <li><strong>Invoice data.</strong> This is what the app reads from an invoice's fiscal QR code or
+            what you type in: NIFs (tax numbers), dates, ATCUD, amounts, VAT and the merchant name.</li>
+        <li><strong>Invoice photos and PDFs.</strong> These are the images you take or pick, to upload
+            to Google Drive.</li>
+        <li><strong>Your Google account.</strong> The app uses your name, email address and profile
+            picture to show which account is connected. It also holds the access tokens Google issues
+            when you sign in.</li>
+        <li><strong>Settings.</strong> These are your default spreadsheet and folder, your append rules,
+            your theme and notification preferences, and the merchant names you have typed for each
+            NIF.</li>
+    </ul>
+
+    <h2>2. Where it is stored</h2>
+    <ul>
+        <li><strong>On your device.</strong> Settings, invoice history and pending saves are kept in the
+            app's private storage. On the web, that's your browser's local storage and IndexedDB. A photo
+            stays on the device only until it has been uploaded, and is then deleted. Sign-in tokens are
+            kept by Google Play services on Android, in the Keychain on iOS, and in the browser tab's
+            session storage on the web.</li>
+        <li><strong>In your Google account.</strong> Each saved invoice becomes a row in a Google Sheet
+            you choose, and its photo goes into a Google Drive folder you choose. These files belong to
+            you and are governed by Google's own terms and
+            <a href="https://policies.google.com/privacy">privacy policy</a>.</li>
+    </ul>
+    <p>Nothing is sent to me or to any server I run.</p>
+
+    <h2>3. Google user data</h2>
+    <p>When you connect Google, the app asks for these permissions:</p>
+    <ul>
+        <li><strong>Google Sheets</strong> (<code>…/auth/spreadsheets</code>). The app uses it to read
+            the header and ATCUD columns of the spreadsheet you picked, to check for duplicates, to create
+            monthly tabs if you turn that on, and to append invoice rows.</li>
+        <li><strong>Google Drive</strong> (<code>…/auth/drive</code>). The app uses it to list your
+            spreadsheets and folders so you can pick one, to create a new spreadsheet or folder when you
+            ask, and to upload invoice photos into the folder you picked. The narrower
+            <code>drive.file</code> permission can't reach spreadsheets and folders that the app didn't
+            create, so it isn't enough for this.</li>
+        <li><strong>Basic profile and email</strong>. The app uses these to show which account is
+            connected.</li>
+    </ul>
+    <p>The app only reads or changes your Google data when you act in it, and only for the purposes
+        above. It doesn't use Google data for advertising, doesn't sell or transfer it, and doesn't use
+        it to train AI or machine-learning models. No person reads it.</p>
+    <p>The app's use and transfer of information received from Google APIs will adhere to the
+        <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services
+        User Data Policy</a>, including the Limited Use requirements.</p>
+
+    <h2>4. Device permissions</h2>
+    <ul>
+        <li><strong>Camera.</strong> The app uses it to scan QR codes and photograph invoices. Frames are
+            processed on the device. On Android, QR codes are decoded on the device by Google ML Kit.</li>
+        <li><strong>Notifications.</strong> The app uses them to tell you when a save finishes or fails.
+            You can turn them off in Settings.</li>
+        <li><strong>Internet.</strong> The app uses it to talk to Google's APIs.</li>
+    </ul>
+
+    <h2>5. Third parties</h2>
+    <p>The app talks directly to Google: Google Sign-In, Google Identity Services, the Sheets API and the
+        Drive API. On Android, Google Play services handles sign-in and ML Kit handles QR decoding. ML Kit
+        decodes on the device, but Google may collect anonymous usage and performance metrics from it.
+        If
+        your browser has no built-in QR decoder, the web version loads the open-source jsQR library from
+        the jsDelivr CDN. That request reveals your IP address to jsDelivr, as any page load does. The
+        web app itself is hosted on GitHub Pages, which may log visitors' IP addresses. There is no
+        other third-party service.</p>
+
+    <h2>6. Keeping and deleting your data</h2>
+    <ul>
+        <li>To remove the app's access to your Google account, sign out in the app or revoke it at
+            <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
+        <li>To delete the data on your device, uninstall the app. On the web, clear the site's data in
+            your browser.</li>
+        <li>Rows and photos already saved stay in your Google Sheets and Drive until you delete them
+            there.</li>
+    </ul>
+
+    <h2>7. Your rights</h2>
+    <p>Because I hold no personal data about you, there is nothing for me to access, correct, export or
+        erase. You control all of it directly on your device and in your Google account. If you are in
+        the EU, you keep your rights under the GDPR, including the right to complain to a data
+        protection authority. In Portugal, that's the CNPD.</p>
+
+    <h2>8. Children</h2>
+    <p>The app is not directed at children under 16 and is not meant to be used by them.</p>
+
+    <h2>9. Changes</h2>
+    <p>If this policy changes, the new version will be posted on this page with a new "Last updated"
+        date. Changes to how the app uses Google data will be posted here before they take effect.</p>
+
+    <h2>10. Contact</h2>
+    <p>For questions about this policy, open an issue at
+        <a href="https://github.com/neteinstein/Invoice2GDrive/issues">github.com/neteinstein/Invoice2GDrive</a>
+        or get in touch through <a href="https://www.pedrovicente.pt">pedrovicente.pt</a>.</p>
+
+    <footer>See also the <a href="terms.html">Terms of Service</a>. · <a href="./">Open the app</a></footer>
+</main>
+</body>
+</html>
