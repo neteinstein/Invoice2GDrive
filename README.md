@@ -7,6 +7,11 @@ An app to snap a picture of an invoice and place it on Google Sheets.
 The product name shown in the app itself is **Invoices → Google Drive** (**Recibos → Google Drive** in Portuguese) — scan an invoice's QR code and it's
 parsed and appended as a row to a Google Sheet you choose, no typing required.
 
+Read the [Privacy Policy](https://neteinstein.github.io/Invoice2GDrive/privacy.html) and the
+[Terms of Service](https://neteinstein.github.io/Invoice2GDrive/terms.html). Their source is in
+`composeApp/src/wasmJsMain/resources/`, and they are deployed with the web app. Use these URLs on
+the Google OAuth consent screen.
+
 ## Stack
 
 Kotlin Multiplatform + Compose Multiplatform, targeting Android, iOS and Web (Kotlin/Wasm) from
