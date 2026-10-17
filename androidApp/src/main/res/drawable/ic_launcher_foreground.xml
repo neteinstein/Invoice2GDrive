@@ -1,19 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Fatura mark: the same four-square "scan grid" glyph shown on the app's welcome screen,
-     scaled into the adaptive icon's safe zone. -->
+<!-- Snap2Sheet mark: an invoice carrying the "scan grid" glyph, framed by scanner corners.
+     Drawn on the shared 1024 artwork grid (docs/logo/logo.svg) and scaled into the safe zone. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="
-            M36.6,34.2 h11 v11 h-11 z
-            M60.8,34.2 h11 v11 h-11 z
-            M36.6,58.4 h11 v11 h-11 z
-            M60.8,58.4 h4.6 v4.6 h-4.6 z
-            M69.4,58.4 h4.6 v4.6 h-4.6 z
-            M60.8,67 h4.6 v4.6 h-4.6 z
-            M69.4,67 h4.6 v4.6 h-4.6 z" />
+    <group
+        android:scaleX="0.07"
+        android:scaleY="0.07"
+        android:translateX="18.16"
+        android:translateY="18.16">
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeAlpha="0.6"
+            android:strokeWidth="26"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M232 250 V186 Q232 158 260 158 H324 M700 158 H764 Q792 158 792 186 V250 M232 780 V844 Q232 872 260 872 H324 M700 872 H764 Q792 872 792 844 V780" />
+        <group android:translateY="14">
+            <path
+                android:fillColor="#0B1F45"
+                android:fillAlpha="0.28"
+                android:pathData="M348 230 H676 A36 36 0 0 1 712 266 V800 L687 774 L662 800 L637 774 L612 800 L587 774 L562 800 L537 774 L512 800 L487 774 L462 800 L437 774 L412 800 L387 774 L362 800 L337 774 L312 800 V266 A36 36 0 0 1 348 230 Z" />
+        </group>
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M348 230 H676 A36 36 0 0 1 712 266 V800 L687 774 L662 800 L637 774 L612 800 L587 774 L562 800 L537 774 L512 800 L487 774 L462 800 L437 774 L412 800 L387 774 L362 800 L337 774 L312 800 V266 A36 36 0 0 1 348 230 Z" />
+        <path
+            android:fillColor="#2E5AAC"
+            android:pathData="M407,300 h82.5 a15,15 0 0 1 15,15 v82.5 a15,15 0 0 1 -15,15 h-82.5 a15,15 0 0 1 -15,-15 v-82.5 a15,15 0 0 1 15,-15 z M534.5,300 h82.5 a15,15 0 0 1 15,15 v82.5 a15,15 0 0 1 -15,15 h-82.5 a15,15 0 0 1 -15,-15 v-82.5 a15,15 0 0 1 15,-15 z M407,427.5 h82.5 a15,15 0 0 1 15,15 v82.5 a15,15 0 0 1 -15,15 h-82.5 a15,15 0 0 1 -15,-15 v-82.5 a15,15 0 0 1 15,-15 z M526.5,427.5 h34.75 a7,7 0 0 1 7,7 v34.75 a7,7 0 0 1 -7,7 h-34.75 a7,7 0 0 1 -7,-7 v-34.75 a7,7 0 0 1 7,-7 z M584.25,427.5 h34.75 a7,7 0 0 1 7,7 v34.75 a7,7 0 0 1 -7,7 h-34.75 a7,7 0 0 1 -7,-7 v-34.75 a7,7 0 0 1 7,-7 z M526.5,485.25 h34.75 a7,7 0 0 1 7,7 v34.75 a7,7 0 0 1 -7,7 h-34.75 a7,7 0 0 1 -7,-7 v-34.75 a7,7 0 0 1 7,-7 z M584.25,485.25 h34.75 a7,7 0 0 1 7,7 v34.75 a7,7 0 0 1 -7,7 h-34.75 a7,7 0 0 1 -7,-7 v-34.75 a7,7 0 0 1 7,-7 z" />
+        <path
+            android:fillColor="#C9D6EE"
+            android:pathData="M384,580 h256 a12,12 0 0 1 12,12 v0 a12,12 0 0 1 -12,12 h-256 a12,12 0 0 1 -12,-12 v0 a12,12 0 0 1 12,-12 z M384,626 h172 a12,12 0 0 1 12,12 v0 a12,12 0 0 1 -12,12 h-172 a12,12 0 0 1 -12,-12 v0 a12,12 0 0 1 12,-12 z" />
+        <path
+            android:fillColor="#1F8A5F"
+            android:pathData="M557,690 h80 a15,15 0 0 1 15,15 v0 a15,15 0 0 1 -15,15 h-80 a15,15 0 0 1 -15,-15 v0 a15,15 0 0 1 15,-15 z" />
+    </group>
 </vector>
