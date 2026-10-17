@@ -53,6 +53,7 @@ import org.neteinstein.snap2sheet.platform.PermissionStatus
 import org.neteinstein.snap2sheet.platform.QrScanner
 import org.neteinstein.snap2sheet.platform.hasInlineCameraPreview
 import org.neteinstein.snap2sheet.platform.rememberCameraPermissionState
+import org.neteinstein.snap2sheet.platform.showsThemeToggle
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.TextInputDialog
 
@@ -109,7 +110,8 @@ fun ScanScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(horizontal = 20.dp, vertical = 22.dp),
+                    // Keep the trailing button clear of the web theme toggle (App.kt).
+                    .padding(start = 20.dp, end = if (showsThemeToggle) 64.dp else 20.dp, top = 22.dp, bottom = 22.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {

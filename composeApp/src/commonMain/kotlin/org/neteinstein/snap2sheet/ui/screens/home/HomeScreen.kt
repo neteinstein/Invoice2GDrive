@@ -42,6 +42,7 @@ import org.neteinstein.snap2sheet.ui.components.InvoiceDetailSheet
 import org.neteinstein.snap2sheet.ui.components.InvoiceRow
 import org.neteinstein.snap2sheet.ui.components.SectionTitle
 import org.neteinstein.snap2sheet.ui.components.formatAmount
+import org.neteinstein.snap2sheet.platform.showsThemeToggle
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 
 @Composable
@@ -58,7 +59,8 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.statusBars)
-                .padding(horizontal = 20.dp, vertical = 18.dp),
+                // Keep the trailing button clear of the web theme toggle (App.kt).
+                .padding(start = 20.dp, end = if (showsThemeToggle) 64.dp else 20.dp, top = 18.dp, bottom = 18.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
