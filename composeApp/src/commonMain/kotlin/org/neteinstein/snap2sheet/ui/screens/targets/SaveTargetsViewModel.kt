@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.neteinstein.snap2sheet.data.repository.AccountRepository
 import org.neteinstein.snap2sheet.data.repository.DriveItemRepository
 import org.neteinstein.snap2sheet.data.repository.FolderRepository
 import org.neteinstein.snap2sheet.data.repository.InvoiceRepository
@@ -24,7 +25,9 @@ import org.neteinstein.snap2sheet.data.sync.InvoiceSyncer
 import org.neteinstein.snap2sheet.domain.format.Formatting
 import org.neteinstein.snap2sheet.domain.model.AppendRules
 import org.neteinstein.snap2sheet.domain.model.DriveItem
+import org.neteinstein.snap2sheet.domain.model.GoogleAccount
 import org.neteinstein.snap2sheet.ui.MessageCenter
+import org.neteinstein.snap2sheet.ui.screens.common.SignOutAction
 import kotlin.time.Clock
 
 /**
@@ -39,6 +42,7 @@ enum class TargetKind(val label: String) { SPREADSHEET(tr("Spreadsheet", "Folha 
 data class TargetRow(val item: DriveItem, val subtitle: String)
 
 data class SaveTargetsUiState(
+    val account: GoogleAccount? = null,
     val tab: TargetKind = TargetKind.SPREADSHEET,
     val rows: List<TargetRow> = emptyList(),
     val query: String = "",
@@ -66,11 +70,19 @@ class SaveTargetsViewModel(
     private val spreadsheets: SpreadsheetRepository,
     private val folders: FolderRepository,
     private val invoiceRepository: InvoiceRepository,
+    accountRepository: AccountRepository,
     private val settings: SettingsRepository,
     private val syncer: InvoiceSyncer,
     private val messages: MessageCenter,
     private val clock: Clock,
 ) : ViewModel() {
+
+    private val signOutAction = SignOutAction(accountRepository, invoiceRepository, spreadsheets, folders)
+
+    /** Signs out from the setup header; navigation then drops back to the sign-in screen. */
+    fun signOut() {
+        viewModelScope.launch { signOutAction() }
+    }
 
     private data class Local(
         val tab: TargetKind = TargetKind.SPREADSHEET,
@@ -111,7 +123,8 @@ class SaveTargetsViewModel(
         local,
         settings.alwaysSaveToDefaultSpreadsheet,
         settings.appendRules,
-    ) { lists, local, always, rules ->
+        accountRepository.account,
+    ) { lists, local, always, rules, account ->
         val spreadsheet = if (mode == SaveTargetsMode.SAVE) local.spreadsheet else lists.sheetDefault
         val folder = if (mode == SaveTargetsMode.SAVE) local.folder else lists.folderDefault
         val (items, chosen) = if (local.tab == TargetKind.SPREADSHEET) lists.sheets to spreadsheet else lists.folders to folder
@@ -121,6 +134,7 @@ class SaveTargetsViewModel(
         // Older matches from searching all of Drive go after the recent ones.
         val all = recent + local.searchResults.filter { found -> recent.none { it.id == found.id } }
         SaveTargetsUiState(
+            account = account,
             tab = local.tab,
             rows = all.map { TargetRow(it, Formatting.lastEdited(it.modifiedAtEpochMillis, now)) },
             query = local.query,

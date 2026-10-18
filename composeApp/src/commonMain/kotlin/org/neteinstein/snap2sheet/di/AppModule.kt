@@ -100,7 +100,7 @@ internal val appModule = module {
     viewModel { ScanViewModel(get()) }
     viewModel { PhotoViewModel(get()) }
     viewModel { ReviewViewModel(get(), get(), get(), get(), get(), get()) }
-    viewModel { (mode: SaveTargetsMode) -> SaveTargetsViewModel(mode, get(), get(), get(), get(), get(), get(), get()) }
+    viewModel { (mode: SaveTargetsMode) -> SaveTargetsViewModel(mode, get(), get(), get(), get(), get(), get(), get(), get()) }
     viewModel { HistoryViewModel(get(), get(), get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get(), get(), get()) }
 }

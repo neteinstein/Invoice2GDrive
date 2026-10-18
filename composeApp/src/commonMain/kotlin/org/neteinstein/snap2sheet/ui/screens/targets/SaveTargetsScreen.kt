@@ -54,6 +54,7 @@ import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
 import org.neteinstein.snap2sheet.ui.components.IconBadge
 import org.neteinstein.snap2sheet.ui.components.Notice
+import org.neteinstein.snap2sheet.ui.components.ProfileMenuButton
 import org.neteinstein.snap2sheet.ui.components.SectionTitle
 import org.neteinstein.snap2sheet.ui.components.TextInputDialog
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
@@ -79,12 +80,18 @@ fun SaveTargetsScreen(
             },
             onBack = onBack,
             trailing = {
-                FaturaIconButton(
-                    contentDescription = if (state.isRefreshing) tr("Refreshing…", "A atualizar…") else tr("Refresh", "Atualizar"),
-                    onClick = viewModel::refresh,
-                    enabled = !state.isRefreshing,
-                ) {
-                    FaturaIcons.Refresh(tint = FaturaColors.Accent, size = 18.dp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    FaturaIconButton(
+                        contentDescription = if (state.isRefreshing) tr("Refreshing…", "A atualizar…") else tr("Refresh", "Atualizar"),
+                        onClick = viewModel::refresh,
+                        enabled = !state.isRefreshing,
+                    ) {
+                        FaturaIcons.Refresh(tint = FaturaColors.Accent, size = 18.dp)
+                    }
+                    // First-run setup has no Home or Settings to reach yet, so offer the account menu here.
+                    if (mode == SaveTargetsMode.SETUP) {
+                        ProfileMenuButton(account = state.account, onSignOut = viewModel::signOut)
+                    }
                 }
             },
         )
