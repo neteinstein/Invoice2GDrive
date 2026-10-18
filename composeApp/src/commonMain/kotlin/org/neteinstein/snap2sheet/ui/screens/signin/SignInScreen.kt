@@ -2,6 +2,7 @@ package org.neteinstein.snap2sheet.ui.screens.signin
 
 import org.neteinstein.snap2sheet.platform.tr
 import org.neteinstein.snap2sheet.ui.components.CopyrightFooter
+import org.neteinstein.snap2sheet.ui.components.LegalNotice
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -150,12 +151,7 @@ fun SignInScreen(
                 .padding(horizontal = 32.dp, vertical = 18.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(
-                tr("By continuing you agree to the Terms of Service and Privacy Policy.", "Ao continuar, aceita os Termos de Serviço e a Política de Privacidade."),
-                style = MaterialTheme.typography.bodySmall,
-                color = FaturaColors.Muted,
-                textAlign = TextAlign.Center,
-            )
+            LegalNotice()
             Spacer(Modifier.height(10.dp))
             CopyrightFooter()
         }
