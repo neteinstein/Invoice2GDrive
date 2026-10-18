@@ -37,7 +37,6 @@ import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.Notice
 import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
-import org.neteinstein.snap2sheet.ui.components.IconBadge
 import org.neteinstein.snap2sheet.ui.components.TextInputDialog
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 
@@ -59,9 +58,7 @@ fun SignInScreen(
             verticalArrangement = Arrangement.Center,
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
-                IconBadge(size = 64.dp, cornerRadius = 18.dp) {
-                    FaturaIcons.Document(tint = FaturaColors.Accent, size = 30.dp)
-                }
+                FaturaIcons.AppLogo(size = 64.dp)
                 Spacer(Modifier.height(16.dp))
                 Text(
                     tr("Connect your Google Account", "Ligue a sua conta Google"),

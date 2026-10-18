@@ -71,9 +71,7 @@ fun WelcomeScreen(onContinue: () -> Unit) {
             modifier = Modifier.fillMaxWidth().padding(top = 64.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            IconBadge(size = 72.dp, cornerRadius = 20.dp) {
-                FaturaIcons.Grid(tint = FaturaColors.Accent, size = 34.dp)
-            }
+            FaturaIcons.AppLogo(size = 72.dp)
             Spacer(Modifier.height(18.dp))
             Text(appName, style = MaterialTheme.typography.headlineMedium, color = FaturaColors.Ink)
             Spacer(Modifier.height(6.dp))

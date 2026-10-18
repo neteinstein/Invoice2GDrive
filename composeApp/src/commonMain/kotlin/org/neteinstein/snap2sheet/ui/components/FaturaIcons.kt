@@ -6,11 +6,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.dp
 
 /**
@@ -155,6 +160,66 @@ object FaturaIcons {
                 close()
             }
             drawPath(path, color = tint, style = stroke)
+        }
+    }
+
+    /**
+     * The full-colour app icon (docs/logo/logo.svg): a receipt with the scan grid inside viewfinder
+     * corners, on the blue gradient tile. Drawn in the SVG's 1024-unit space and scaled to [size].
+     */
+    @Composable
+    fun AppLogo(modifier: Modifier = Modifier, size: androidx.compose.ui.unit.Dp = 72.dp) {
+        Canvas(modifier.size(size)) {
+            scale(this.size.width / 1024f, pivot = Offset.Zero) {
+                drawRoundRect(
+                    Brush.linearGradient(listOf(Color(0xFF3D6FCB), Color(0xFF22468A)), start = Offset.Zero, end = Offset(1024f, 1024f)),
+                    size = Size(1024f, 1024f),
+                    cornerRadius = CornerRadius(228f, 228f),
+                )
+
+                val corners = Path().apply {
+                    moveTo(232f, 250f); lineTo(232f, 186f); quadraticTo(232f, 158f, 260f, 158f); lineTo(324f, 158f)
+                    moveTo(700f, 158f); lineTo(764f, 158f); quadraticTo(792f, 158f, 792f, 186f); lineTo(792f, 250f)
+                    moveTo(232f, 780f); lineTo(232f, 844f); quadraticTo(232f, 872f, 260f, 872f); lineTo(324f, 872f)
+                    moveTo(700f, 872f); lineTo(764f, 872f); quadraticTo(792f, 872f, 792f, 844f); lineTo(792f, 780f)
+                }
+                drawPath(corners, Color.White.copy(alpha = 0.6f), style = Stroke(width = 26f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+
+                // Receipt with a torn (zigzag) bottom edge.
+                val receipt = Path().apply {
+                    moveTo(348f, 230f)
+                    lineTo(676f, 230f)
+                    arcTo(Rect(640f, 230f, 712f, 302f), -90f, 90f, false)
+                    lineTo(712f, 800f)
+                    var x = 712f
+                    while (x > 312f) {
+                        lineTo(x - 25f, 774f)
+                        lineTo(x - 50f, 800f)
+                        x -= 50f
+                    }
+                    lineTo(312f, 266f)
+                    arcTo(Rect(312f, 230f, 384f, 302f), 180f, 90f, false)
+                    close()
+                }
+                translate(top = 14f) { drawPath(receipt, Color(0xFF0B1F45).copy(alpha = 0.28f)) }
+                drawPath(receipt, Color.White)
+
+                val gridColor = Color(0xFF2E5AAC)
+                fun sq(x: Float, y: Float, s: Float, r: Float) =
+                    drawRoundRect(gridColor, topLeft = Offset(x, y), size = Size(s, s), cornerRadius = CornerRadius(r, r))
+                sq(392f, 300f, 112.5f, 15f)
+                sq(519.5f, 300f, 112.5f, 15f)
+                sq(392f, 427.5f, 112.5f, 15f)
+                sq(519.5f, 427.5f, 48.75f, 7f)
+                sq(577.25f, 427.5f, 48.75f, 7f)
+                sq(519.5f, 485.25f, 48.75f, 7f)
+                sq(577.25f, 485.25f, 48.75f, 7f)
+
+                val lineColor = Color(0xFFC9D6EE)
+                drawRoundRect(lineColor, topLeft = Offset(372f, 580f), size = Size(280f, 24f), cornerRadius = CornerRadius(12f, 12f))
+                drawRoundRect(lineColor, topLeft = Offset(372f, 626f), size = Size(196f, 24f), cornerRadius = CornerRadius(12f, 12f))
+                drawRoundRect(Color(0xFF1F8A5F), topLeft = Offset(542f, 690f), size = Size(110f, 30f), cornerRadius = CornerRadius(15f, 15f))
+            }
         }
     }
 
