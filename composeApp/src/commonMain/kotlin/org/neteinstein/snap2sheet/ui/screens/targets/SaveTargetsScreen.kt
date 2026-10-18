@@ -161,6 +161,7 @@ fun SaveTargetsScreen(
                     Text(
                         when {
                             state.isRefreshing -> tr("Loading…", "A carregar…")
+                            state.isSearching -> tr("Searching your Drive…", "A pesquisar no seu Drive…")
                             state.query.isNotBlank() -> tr("Nothing matches \"${state.query}\".", "Nada corresponde a \"${state.query}\".")
                             else -> tr("Nothing here yet. Create one below.", "Ainda nada aqui. Crie um abaixo.")
                         },

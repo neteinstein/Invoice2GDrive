@@ -19,8 +19,10 @@ class AccountAwareSheetsGateway(
         }
 
     override suspend fun listSpreadsheets() = current.listSpreadsheets()
+    override suspend fun searchSpreadsheets(name: String) = current.searchSpreadsheets(name)
     override suspend fun createSpreadsheet(name: String) = current.createSpreadsheet(name)
     override suspend fun listFolders() = current.listFolders()
+    override suspend fun searchFolders(name: String) = current.searchFolders(name)
     override suspend fun createFolder(name: String) = current.createFolder(name)
 
     override suspend fun findDuplicate(spreadsheetId: String, invoice: Invoice, rules: AppendRules) =
