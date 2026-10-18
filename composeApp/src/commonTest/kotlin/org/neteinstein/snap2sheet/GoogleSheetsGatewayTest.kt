@@ -158,6 +158,26 @@ class GoogleSheetsGatewayTest {
     }
 
     @Test
+    fun searchFolders_queriesAllOfDriveByName() = runTest {
+        val gateway = gateway { json("""{"files":[{"id":"old","name":"Faturas 2019"}]}""") }
+
+        assertEquals("Faturas 2019", gateway.searchFolders(" Faturas 2019 ").single().name)
+        assertEquals(
+            "mimeType='application/vnd.google-apps.folder' and trashed=false and name contains 'Faturas 2019'",
+            requests.single().url.parameters["q"],
+        )
+    }
+
+    @Test
+    fun searchSpreadsheets_escapesQuotesInTheName() = runTest {
+        val gateway = gateway { json("""{"files":[]}""") }
+
+        gateway.searchSpreadsheets("""Joe's \ costs""")
+
+        assertTrue("""name contains 'Joe\'s \\ costs'""" in requests.single().url.parameters["q"].orEmpty())
+    }
+
+    @Test
     fun calls_retryOnceWithAFreshTokenAfter401() = runTest {
         val gateway = gateway { request ->
             if (request.headers[HttpHeaders.Authorization] == "Bearer stale") json("{}", HttpStatusCode.Unauthorized)

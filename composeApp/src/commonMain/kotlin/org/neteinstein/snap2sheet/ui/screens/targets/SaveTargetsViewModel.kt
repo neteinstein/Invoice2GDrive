@@ -4,6 +4,8 @@ import org.neteinstein.snap2sheet.platform.tr
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -47,6 +49,8 @@ data class SaveTargetsUiState(
     val alwaysSaveToDefaults: Boolean = true,
     val appendRules: AppendRules = AppendRules(),
     val isRefreshing: Boolean = false,
+    /** Looking through all of Drive for [query], beyond the recent items in [rows]. */
+    val isSearching: Boolean = false,
     val isCreating: Boolean = false,
     val error: String? = null,
     val done: Boolean = false,
@@ -71,6 +75,9 @@ class SaveTargetsViewModel(
     private data class Local(
         val tab: TargetKind = TargetKind.SPREADSHEET,
         val query: String = "",
+        /** Drive-wide matches for [query] in [tab]. */
+        val searchResults: List<DriveItem> = emptyList(),
+        val isSearching: Boolean = false,
         // SAVE mode keeps its own choice so the defaults aren't touched unless asked.
         val spreadsheet: DriveItem? = null,
         val folder: DriveItem? = null,
@@ -110,7 +117,9 @@ class SaveTargetsViewModel(
         val (items, chosen) = if (local.tab == TargetKind.SPREADSHEET) lists.sheets to spreadsheet else lists.folders to folder
         val now = clock.now().toEpochMilliseconds()
         // Drive only lists the 100 most recent; keep the chosen one visible even if it's older.
-        val all = if (chosen != null && items.none { it.id == chosen.id }) listOf(chosen) + items else items
+        val recent = if (chosen != null && items.none { it.id == chosen.id }) listOf(chosen) + items else items
+        // Older matches from searching all of Drive go after the recent ones.
+        val all = recent + local.searchResults.filter { found -> recent.none { it.id == found.id } }
         SaveTargetsUiState(
             tab = local.tab,
             rows = all.map { TargetRow(it, Formatting.lastEdited(it.modifiedAtEpochMillis, now)) },
@@ -121,6 +130,7 @@ class SaveTargetsViewModel(
             alwaysSaveToDefaults = always,
             appendRules = rules,
             isRefreshing = lists.refreshing,
+            isSearching = local.isSearching,
             isCreating = local.isCreating,
             error = local.error,
             done = local.done,
@@ -138,9 +148,25 @@ class SaveTargetsViewModel(
         }
     }
 
-    fun selectTab(tab: TargetKind) = local.update { it.copy(tab = tab, query = "") }
+    private var searchJob: Job? = null
 
-    fun onQueryChange(value: String) = local.update { it.copy(query = value) }
+    fun selectTab(tab: TargetKind) {
+        searchJob?.cancel()
+        local.update { it.copy(tab = tab, query = "", searchResults = emptyList(), isSearching = false) }
+    }
+
+    fun onQueryChange(value: String) {
+        searchJob?.cancel()
+        local.update { it.copy(query = value, searchResults = emptyList(), isSearching = value.isNotBlank()) }
+        if (value.isBlank()) return
+        val repository = repository(local.value.tab)
+        searchJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_MILLIS)
+            // Offline or failing: the recent items are still filtered locally, so stay quiet.
+            val found = repository.search(value).getOrDefault(emptyList())
+            local.update { it.copy(searchResults = found, isSearching = false) }
+        }
+    }
 
     fun onAlwaysSaveChange(value: Boolean) = settings.setAlwaysSaveToDefaultSpreadsheet(value)
 
@@ -203,5 +229,9 @@ class SaveTargetsViewModel(
             }
         }
         local.update { it.copy(done = true) }
+    }
+
+    private companion object {
+        const val SEARCH_DEBOUNCE_MILLIS = 350L
     }
 }

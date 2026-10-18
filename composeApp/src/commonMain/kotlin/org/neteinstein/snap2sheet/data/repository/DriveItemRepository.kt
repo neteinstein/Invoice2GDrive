@@ -22,6 +22,9 @@ interface DriveItemRepository {
     val isRefreshing: StateFlow<Boolean>
 
     suspend fun refresh(): Result<Unit>
+
+    /** Items anywhere in Drive whose name contains [query]; [items] only holds the most recent. */
+    suspend fun search(query: String): Result<List<DriveItem>>
     fun select(item: DriveItem)
 
     /** Creates a new item in Drive; it becomes the default when [makeDefault]. */
@@ -43,6 +46,7 @@ open class CachedDriveItemRepository(
     private val listKey: String,
     private val defaultKey: String,
     private val list: suspend () -> List<DriveItem>,
+    private val searchByName: suspend (String) -> List<DriveItem>,
     private val createItem: suspend (String) -> DriveItem,
 ) : DriveItemRepository {
 
@@ -76,6 +80,14 @@ open class CachedDriveItemRepository(
         }
     }
 
+    override suspend fun search(query: String): Result<List<DriveItem>> = try {
+        Result.success(searchByName(query.trim()))
+    } catch (e: CancellationException) {
+        throw e
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
+
     override fun select(item: DriveItem) {
         _selected.value = item
         store.putString(defaultKey, json.encodeToString(item))
@@ -106,9 +118,9 @@ open class CachedDriveItemRepository(
 }
 
 class DefaultSpreadsheetRepository(store: KeyValueStore, gateway: SheetsGateway, json: Json) :
-    CachedDriveItemRepository(store, json, "spreadsheets", "default_spreadsheet", gateway::listSpreadsheets, gateway::createSpreadsheet),
+    CachedDriveItemRepository(store, json, "spreadsheets", "default_spreadsheet", gateway::listSpreadsheets, gateway::searchSpreadsheets, gateway::createSpreadsheet),
     SpreadsheetRepository
 
 class DefaultFolderRepository(store: KeyValueStore, gateway: SheetsGateway, json: Json) :
-    CachedDriveItemRepository(store, json, "folders", "default_folder", gateway::listFolders, gateway::createFolder),
+    CachedDriveItemRepository(store, json, "folders", "default_folder", gateway::listFolders, gateway::searchFolders, gateway::createFolder),
     FolderRepository

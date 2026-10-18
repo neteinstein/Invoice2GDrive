@@ -60,13 +60,19 @@ class GoogleSheetsGateway(
 
     override suspend fun listSpreadsheets(): List<DriveItem> = listDriveItems(SPREADSHEET_MIME)
 
+    override suspend fun searchSpreadsheets(name: String): List<DriveItem> = listDriveItems(SPREADSHEET_MIME, name)
+
     override suspend fun listFolders(): List<DriveItem> = listDriveItems(FOLDER_MIME)
 
-    private suspend fun listDriveItems(mimeType: String): List<DriveItem> {
+    override suspend fun searchFolders(name: String): List<DriveItem> = listDriveItems(FOLDER_MIME, name)
+
+    /** The 100 most recently modified items of [mimeType] — across all of Drive when [nameContains] is set. */
+    private suspend fun listDriveItems(mimeType: String, nameContains: String? = null): List<DriveItem> {
+        val nameClause = nameContains?.trim()?.takeIf { it.isNotEmpty() }?.let { " and name contains '${escapeQuery(it)}'" }.orEmpty()
         val list: DriveFileList = call { token ->
             http.get(DRIVE_FILES_API) {
                 bearerAuth(token)
-                parameter("q", "mimeType='$mimeType' and trashed=false")
+                parameter("q", "mimeType='$mimeType' and trashed=false$nameClause")
                 parameter("orderBy", "modifiedTime desc")
                 parameter("fields", "files(id,name,modifiedTime)")
                 parameter("pageSize", 100)
@@ -293,6 +299,9 @@ class GoogleSheetsGateway(
         val lenientJson = Json { ignoreUnknownKeys = true }
     }
 }
+
+/** Escapes a value for a single-quoted string in a Drive `q` query. */
+internal fun escapeQuery(value: String): String = value.replace("\\", "\\\\").replace("'", "\\'")
 
 /** Percent-encodes an A1 range for use as a URL path segment (`'2026-09'!A1` → `%272026-09%27%21A1`). */
 internal fun encodeRange(range: String): String = buildString {

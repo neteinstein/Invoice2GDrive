@@ -68,12 +68,18 @@ class FakeSheetsGateway : SheetsGateway {
 
     override suspend fun listSpreadsheets() = failWith?.let { throw it } ?: spreadsheets.toList()
 
+    override suspend fun searchSpreadsheets(name: String) =
+        listSpreadsheets().filter { it.name.contains(name, ignoreCase = true) }
+
     override suspend fun createSpreadsheet(name: String): DriveItem {
         failWith?.let { throw it }
         return DriveItem("sheet-${spreadsheets.size + 1}", name, 2_000L).also { spreadsheets.add(0, it) }
     }
 
     override suspend fun listFolders() = failWith?.let { throw it } ?: folders.toList()
+
+    override suspend fun searchFolders(name: String) =
+        listFolders().filter { it.name.contains(name, ignoreCase = true) }
 
     override suspend fun createFolder(name: String): DriveItem {
         failWith?.let { throw it }

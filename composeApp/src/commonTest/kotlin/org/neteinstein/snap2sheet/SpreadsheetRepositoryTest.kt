@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.neteinstein.snap2sheet.data.remote.SheetsException
 import org.neteinstein.snap2sheet.data.repository.DefaultSpreadsheetRepository
+import org.neteinstein.snap2sheet.domain.model.DriveItem
 import org.neteinstein.snap2sheet.testing.FakeSheetsGateway
 import org.neteinstein.snap2sheet.testing.InMemoryKeyValueStore
 import kotlin.test.Test
@@ -36,6 +37,17 @@ class SpreadsheetRepositoryTest {
 
         assertTrue(result.isFailure)
         assertEquals(1, repository.items.value.size)
+    }
+
+    @Test
+    fun search_findsMatchesWithoutTouchingTheCachedList() = runTest {
+        gateway.spreadsheets += DriveItem("sheet-old", "Despesas 2019", 500L)
+        val repository = repository()
+
+        val found = repository.search(" 2019 ").getOrThrow()
+
+        assertEquals(listOf("Despesas 2019"), found.map { it.name })
+        assertEquals(emptyList(), repository.items.value)
     }
 
     @Test

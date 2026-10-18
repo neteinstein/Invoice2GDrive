@@ -27,9 +27,15 @@ class SheetsException(message: String, val kind: Kind, cause: Throwable? = null)
 /** Everything that would otherwise need Google: spreadsheets, folders, rows and file uploads. */
 interface SheetsGateway {
     suspend fun listSpreadsheets(): List<DriveItem>
+
+    /** Spreadsheets anywhere in Drive whose name contains [name] — not just the recent ones. */
+    suspend fun searchSpreadsheets(name: String): List<DriveItem>
     suspend fun createSpreadsheet(name: String): DriveItem
 
     suspend fun listFolders(): List<DriveItem>
+
+    /** Folders anywhere in Drive whose name contains [name] — not just the recent ones. */
+    suspend fun searchFolders(name: String): List<DriveItem>
     suspend fun createFolder(name: String): DriveItem
 
     /** The tab already holding [invoice]'s ATCUD, or null — checked before uploading anything. */
