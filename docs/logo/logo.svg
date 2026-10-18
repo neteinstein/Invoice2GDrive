@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
-  <title>Snap2Sheet</title>
+  <title>Invoice2Sheet</title>
   <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5B3BD6"/><stop offset="1" stop-color="#2F1A86"/></linearGradient></defs>
   <rect width="1024" height="1024" rx="228" fill="url(#bg)"/>
   <path d="M298 196 H594 A36 36 0 0 1 630 232 V800 L607 776 L584 800 L561 776 L538 800 L515 776 L492 800 L469 776 L446 800 L423 776 L400 800 L377 776 L354 800 L331 776 L308 800 L285 776 L262 800 V232 A36 36 0 0 1 298 196 Z" transform="translate(0 14)" fill="#150B45" fill-opacity="0.3"/>

@@ -1,10 +1,10 @@
-<p align="center"><img src="docs/logo/logo.svg" alt="Snap2Sheet logo" width="128"></p>
+<p align="center"><img src="docs/logo/logo.svg" alt="Invoice2Sheet logo" width="128"></p>
 
-# Snap2Sheet
+# Invoice2Sheet
 
 An app to snap a picture of an invoice and place it on Google Sheets.
 
-The product name shown in the app itself is **Invoices → Google Drive** (**Recibos → Google Drive** in Portuguese) — scan an invoice's QR code and it's
+The product name is **Invoice2Sheet** (the codebase is still called Snap2Sheet). Scan an invoice's QR code and it's
 parsed and appended as a row to a Google Sheet you choose, no typing required.
 
 Read the [Privacy Policy](https://neteinstein.github.io/Invoice2GDrive/privacy.html) and the
@@ -13,6 +13,15 @@ Read the [Privacy Policy](https://neteinstein.github.io/Invoice2GDrive/privacy.h
 the Google OAuth consent screen.
 Upload [`docs/logo/oauth-logo-120.png`](docs/logo/oauth-logo-120.png) (120×120 PNG) as the consent screen's
 app logo.
+
+To pass Google's brand verification, fill in the consent screen's Branding page like this:
+
+- **App name:** `Invoice2Sheet`. It must match the name on the homepage. Google rejects names that
+  contain Google product names such as "Google Drive".
+- **Application home page:** `https://neteinstein.github.io/Invoice2GDrive/`. This is a public
+  landing page (`index.html`) that describes the app and why it needs Google data. The app itself
+  is served at `app.html`, so the homepage isn't behind a sign-in screen.
+- **Privacy policy / Terms of service:** the two URLs above.
 
 ## Stack
 
