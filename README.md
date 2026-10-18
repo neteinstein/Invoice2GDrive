@@ -105,7 +105,7 @@ needs one.
 ## Building
 
 ```bash
-./gradlew :androidApp:assembleDebug
+./gradlew :androidApp:assembleGithubDebug        # flavors: github (sideloaded APK), playstore (Play bundle)
 ./gradlew :composeApp:testAndroidHostTest     # shared unit tests (also: iosSimulatorArm64Test, wasmJsTest)
 ```
 
@@ -127,3 +127,51 @@ Pushes to `main` build the Kotlin/Wasm web target and publish it to GitHub Pages
 repo once under Settings → Pages → Source → GitHub Actions, and set the `GOOGLE_WEB_CLIENT_ID`
 repository variable (Settings → Secrets and variables → Actions → Variables) to enable Google
 sign-in on the deployed site.
+
+## Android releases
+
+Every push to `main` (or a manual run) runs [`.github/workflows/release.yml`](.github/workflows/release.yml):
+
+1. Fails fast if the signing secrets are missing.
+2. Runs the shared unit tests (`:composeApp:testAndroidHostTest`) on the exact merged commit.
+3. Decodes the keystore and builds `:androidApp:assembleGithubRelease` and
+   `:androidApp:bundlePlaystoreRelease`, both signed and minified, with `versionCode = run number`
+   and `versionName = 1.0.<run number>` (`APP_VERSION_CODE` / `APP_VERSION_NAME`).
+4. Creates a GitHub Release `v1.0.<run number>` with `Snap2Sheet_version1_0_<n>-github.apk`,
+   `Snap2Sheet_version1_0_<n>-playstore.aab`, each flavor's R8 mapping and the APK's SHA-1.
+5. **Publishes to Google Play** with `:androidApp:publishPlaystoreReleaseBundle` when the
+   `ANDROID_PUBLISHER_CREDENTIALS` secret is set. The bundle goes to the `internal` track, or to the
+   track in the `PLAY_TRACK` variable (`alpha`, `beta`, `production`). Without the secret the step
+   is skipped with a notice, not failed.
+
+The two flavors share the application id `org.neteinstein.snap2sheet`. The `github` flavor can
+never be uploaded to Play: Gradle Play Publisher is enabled for `playstore` only. Play release notes
+live in `androidApp/src/playstore/play/release-notes/`.
+
+### Secrets (Settings → Secrets and variables → Actions)
+
+| Secret | Value |
+|---|---|
+| `KEYSTORE_BASE64` | The upload keystore, `base64 -w0 release.keystore` |
+| `KEYSTORE_PASSWORD` | Keystore password |
+| `KEY_ALIAS` | Key alias |
+| `KEY_PASSWORD` | Key password |
+| `ANDROID_PUBLISHER_CREDENTIALS` | *(optional)* Play service-account JSON key |
+
+Add the release key's SHA-1 to the Android OAuth client (Google setup above). For the Play build,
+add the **Play App Signing** key's SHA-1 from the Play Console too. Without it, Google sign-in fails.
+
+### One-time Google Play setup
+
+1. Create the app in the Play Console (package `org.neteinstein.snap2sheet`) and enrol in Play App
+   Signing. The keystore in `KEYSTORE_BASE64` is the **upload key**.
+2. **Upload the first bundle by hand.** The Play Developer API can only publish updates. Take the
+   `.aab` from a GitHub Release and upload it to the internal track in the Play Console.
+3. In Google Cloud, create a service account with a JSON key. Then in the Play Console → Users and
+   permissions, invite its e-mail with release permissions for this app.
+4. Add the JSON key as the `ANDROID_PUBLISHER_CREDENTIALS` secret, and optionally `PLAY_TRACK` as a
+   variable.
+
+A `403 PERMISSION_DENIED` from the upload means the service account isn't set up yet. The usual
+causes are: it wasn't invited to the app, there was no first manual release, the API isn't enabled,
+or a permission is still propagating (this can take up to a day).

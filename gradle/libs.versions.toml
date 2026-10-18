@@ -21,6 +21,7 @@ mlkit-barcode = "17.3.0"
 androidx-core = "1.17.0"
 androidx-work = "2.10.3"
 androidx-exifinterface = "1.4.1"
+playPublisher = "4.1.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -70,3 +71,4 @@ composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "compose-pl
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+playPublisher = { id = "com.github.triplet.play", version.ref = "playPublisher" }

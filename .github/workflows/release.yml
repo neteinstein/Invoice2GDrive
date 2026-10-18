@@ -1,0 +1,141 @@
+name: Release
+
+# Every push to main (and manual runs) builds the signed release of both Android flavors:
+# - "github": the APK published as a GitHub Release tagged v1.0.<run number>, with R8's mapping file.
+# - "playstore": the app bundle, attached to that Release and uploaded to the Play Console's internal
+#   track when ANDROID_PUBLISHER_CREDENTIALS is set.
+# See README.md → Android releases.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  GRADLE_OPTS: -Dorg.gradle.daemon=false
+  VERSION_NAME: "1.0.${{ github.run_number }}"
+
+jobs:
+  release:
+    name: Build and publish Android release
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      # Fail fast, before spending CI time, if the signing secrets aren't set up (README.md).
+      - name: Validate required secrets
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          missing=()
+          [ -z "$KEYSTORE_BASE64" ] && missing+=("KEYSTORE_BASE64")
+          [ -z "$KEYSTORE_PASSWORD" ] && missing+=("KEYSTORE_PASSWORD")
+          [ -z "$KEY_ALIAS" ] && missing+=("KEY_ALIAS")
+          [ -z "$KEY_PASSWORD" ] && missing+=("KEY_PASSWORD")
+          if [ ${#missing[@]} -ne 0 ]; then
+            echo "::error::Missing required Action secrets: ${missing[*]} (see README.md → Android releases)"
+            exit 1
+          fi
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          # v6 defaults to a proprietary caching service; keep the open-source GitHub Actions cache.
+          cache-provider: basic
+
+      # Nothing else builds the merged commit before it ships, so gate the release on the shared tests.
+      - name: Unit tests
+        run: ./gradlew :composeApp:testAndroidHostTest --stacktrace
+
+      - name: Decode signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.keystore"
+
+      - name: Build signed release APK (github) and app bundle (playstore)
+        env:
+          KEYSTORE_FILE: ${{ runner.temp }}/release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          APP_VERSION_CODE: ${{ github.run_number }}
+          APP_VERSION_NAME: ${{ env.VERSION_NAME }}
+        run: ./gradlew :androidApp:assembleGithubRelease :androidApp:bundlePlaystoreRelease --stacktrace
+
+      - name: Prepare release artifacts
+        id: artifact
+        run: |
+          VERSION_UNDERSCORE="${VERSION_NAME//./_}"
+
+          APK_PATH="androidApp/build/outputs/apk/github/release/Snap2Sheet_version${VERSION_UNDERSCORE}-github.apk"
+          mv androidApp/build/outputs/apk/github/release/androidApp-github-release.apk "$APK_PATH"
+          echo "apk_path=$APK_PATH" >> "$GITHUB_OUTPUT"
+          echo "apk_sha1=$(sha1sum "$APK_PATH" | awk '{print $1}')" >> "$GITHUB_OUTPUT"
+
+          # R8's rename table for this exact APK: without it a crash report from the build is
+          # unreadable, and every build produces a different one.
+          MAPPING_PATH="$RUNNER_TEMP/Snap2Sheet_version${VERSION_UNDERSCORE}-github-mapping.txt"
+          cp androidApp/build/outputs/mapping/githubRelease/mapping.txt "$MAPPING_PATH"
+          echo "mapping_path=$MAPPING_PATH" >> "$GITHUB_OUTPUT"
+
+          # The Play bundle is copied, not moved: the Play upload below publishes Gradle's own output.
+          AAB_PATH="$RUNNER_TEMP/Snap2Sheet_version${VERSION_UNDERSCORE}-playstore.aab"
+          cp androidApp/build/outputs/bundle/playstoreRelease/androidApp-playstore-release.aab "$AAB_PATH"
+          echo "aab_path=$AAB_PATH" >> "$GITHUB_OUTPUT"
+          PLAY_MAPPING_PATH="$RUNNER_TEMP/Snap2Sheet_version${VERSION_UNDERSCORE}-playstore-mapping.txt"
+          cp androidApp/build/outputs/mapping/playstoreRelease/mapping.txt "$PLAY_MAPPING_PATH"
+          echo "play_mapping_path=$PLAY_MAPPING_PATH" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APK_PATH: ${{ steps.artifact.outputs.apk_path }}
+          APK_SHA1: ${{ steps.artifact.outputs.apk_sha1 }}
+          MAPPING_PATH: ${{ steps.artifact.outputs.mapping_path }}
+          AAB_PATH: ${{ steps.artifact.outputs.aab_path }}
+          PLAY_MAPPING_PATH: ${{ steps.artifact.outputs.play_mapping_path }}
+        run: |
+          gh release create "v${VERSION_NAME}" \
+            "$APK_PATH" \
+            "$MAPPING_PATH" \
+            "$AAB_PATH" \
+            "$PLAY_MAPPING_PATH" \
+            --title "v${VERSION_NAME}" \
+            --notes "**github flavor APK SHA-1:** \`${APK_SHA1}\`
+
+          \`*-playstore.aab\` is the same release as the Play Store bundle. Each \`*-mapping.txt\` is R8's rename table for its flavor's build. A stack trace from it only becomes readable through the matching file (\`retrace <mapping.txt> <trace.txt>\`)." \
+            --generate-notes
+
+      # Play Console upload (internal track unless the PLAY_TRACK variable says otherwise). Skipped,
+      # not failed, until the service-account key is set: the GitHub Release above is already out.
+      # The first bundle for a new app must be uploaded by hand in the Play Console (README.md).
+      - name: Publish to Google Play
+        env:
+          ANDROID_PUBLISHER_CREDENTIALS: ${{ secrets.ANDROID_PUBLISHER_CREDENTIALS }}
+          PLAY_TRACK: ${{ vars.PLAY_TRACK }}
+          KEYSTORE_FILE: ${{ runner.temp }}/release.keystore
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+          APP_VERSION_CODE: ${{ github.run_number }}
+          APP_VERSION_NAME: ${{ env.VERSION_NAME }}
+        run: |
+          if [ -z "$ANDROID_PUBLISHER_CREDENTIALS" ]; then
+            echo "::notice::ANDROID_PUBLISHER_CREDENTIALS is not set - skipped the Google Play upload (see README.md → Android releases)."
+            exit 0
+          fi
+          ./gradlew :androidApp:publishPlaystoreReleaseBundle --stacktrace
