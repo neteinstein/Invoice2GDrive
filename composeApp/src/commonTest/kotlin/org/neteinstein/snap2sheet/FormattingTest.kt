@@ -1,14 +1,23 @@
 package org.neteinstein.snap2sheet
 
+import org.neteinstein.snap2sheet.platform.AppLanguage
+import org.neteinstein.snap2sheet.platform.appLanguage
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import org.neteinstein.snap2sheet.domain.format.Formatting
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.time.Instant
 
 class FormattingTest {
+
+    // Expected strings below are the English copy; the app defaults to Portuguese.
+    @BeforeTest
+    fun useEnglish() {
+        appLanguage = AppLanguage.EN
+    }
 
     private val utc = TimeZone.UTC
     private val now = Instant.parse("2026-09-18T14:32:00Z").toEpochMilliseconds()

@@ -2,12 +2,19 @@ package org.neteinstein.snap2sheet
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.clip
 import org.neteinstein.snap2sheet.domain.model.AppTheme
+import org.neteinstein.snap2sheet.platform.AppLanguage
 import org.neteinstein.snap2sheet.platform.showsThemeToggle
 import org.neteinstein.snap2sheet.platform.systemPrefersDark
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
@@ -39,6 +46,7 @@ fun App(
     messageCenter: MessageCenter = koinInject(),
 ) {
     val theme by settingsRepository.theme.collectAsStateWithLifecycle()
+    val language by settingsRepository.language.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Collected rather than keyed on the value: consuming a message must not cancel its snackbar.
@@ -53,24 +61,44 @@ fun App(
     FaturaTheme(theme = theme) {
         Box(modifier = Modifier.fillMaxSize()) {
             AppNavigation()
-            if (showsThemeToggle) {
-                val dark = when (theme) {
-                    AppTheme.LIGHT -> false
-                    AppTheme.DARK -> true
-                    AppTheme.SYSTEM -> systemPrefersDark()
-                }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.align(Alignment.TopEnd).statusBarsPadding().padding(8.dp),
+            ) {
+                // Shows the language a tap switches to.
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .statusBarsPadding()
-                        .padding(8.dp)
-                        .size(40.dp)
+                        .height(40.dp)
                         .clip(CircleShape)
                         .background(FaturaColors.Surface.copy(alpha = 0.9f))
-                        .clickable { settingsRepository.setTheme(if (dark) AppTheme.LIGHT else AppTheme.DARK) },
+                        .clickable { settingsRepository.setLanguage(if (language == AppLanguage.PT) AppLanguage.EN else AppLanguage.PT) }
+                        .padding(horizontal = 12.dp),
                 ) {
-                    if (dark) FaturaIcons.Sun(tint = FaturaColors.Ink) else FaturaIcons.Moon(tint = FaturaColors.Ink)
+                    Text(
+                        if (language == AppLanguage.PT) "EN" else "PT",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = FaturaColors.Ink,
+                    )
+                }
+                if (showsThemeToggle) {
+                    val dark = when (theme) {
+                        AppTheme.LIGHT -> false
+                        AppTheme.DARK -> true
+                        AppTheme.SYSTEM -> systemPrefersDark()
+                    }
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(FaturaColors.Surface.copy(alpha = 0.9f))
+                            .clickable { settingsRepository.setTheme(if (dark) AppTheme.LIGHT else AppTheme.DARK) },
+                    ) {
+                        if (dark) FaturaIcons.Sun(tint = FaturaColors.Ink) else FaturaIcons.Moon(tint = FaturaColors.Ink)
+                    }
                 }
             }
             SnackbarHost(
