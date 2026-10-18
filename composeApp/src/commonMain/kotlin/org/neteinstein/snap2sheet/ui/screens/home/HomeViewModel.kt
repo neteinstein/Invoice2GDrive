@@ -6,9 +6,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.neteinstein.snap2sheet.data.repository.AccountRepository
+import org.neteinstein.snap2sheet.data.repository.FolderRepository
 import org.neteinstein.snap2sheet.data.repository.InvoiceRepository
 import org.neteinstein.snap2sheet.data.repository.SpreadsheetRepository
 import org.neteinstein.snap2sheet.data.sync.InvoiceSyncer
@@ -17,6 +19,7 @@ import org.neteinstein.snap2sheet.domain.model.GoogleAccount
 import org.neteinstein.snap2sheet.domain.model.Invoice
 import org.neteinstein.snap2sheet.domain.model.InvoiceStatus
 import org.neteinstein.snap2sheet.ui.screens.common.InvoiceActions
+import org.neteinstein.snap2sheet.ui.screens.common.SignOutAction
 import kotlin.time.Clock
 import kotlin.time.Instant
 
@@ -39,11 +42,19 @@ class HomeViewModel(
     invoiceRepository: InvoiceRepository,
     accountRepository: AccountRepository,
     spreadsheetRepository: SpreadsheetRepository,
+    folderRepository: FolderRepository,
     syncer: InvoiceSyncer,
     private val clock: Clock,
 ) : ViewModel() {
 
     val actions = InvoiceActions(invoiceRepository, syncer)
+
+    private val signOutAction = SignOutAction(accountRepository, invoiceRepository, spreadsheetRepository, folderRepository)
+
+    /** Signs out from the header button; navigation then drops back to the sign-in screen. */
+    fun signOut() {
+        viewModelScope.launch { signOutAction() }
+    }
 
     private val listState = combine(
         invoiceRepository.invoices,

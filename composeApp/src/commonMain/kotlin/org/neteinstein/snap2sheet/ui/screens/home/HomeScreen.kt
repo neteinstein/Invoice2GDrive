@@ -22,10 +22,15 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +41,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.neteinstein.snap2sheet.ui.components.BottomNavBar
 import org.neteinstein.snap2sheet.ui.components.BottomNavTab
 import org.neteinstein.snap2sheet.ui.components.FaturaCard
+import org.neteinstein.snap2sheet.ui.components.FaturaIconButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.IconBadge
 import org.neteinstein.snap2sheet.ui.components.InvoiceDetailSheet
@@ -53,6 +59,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showSignOutDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
         Row(
@@ -67,15 +74,20 @@ fun HomeScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(appName, style = MaterialTheme.typography.titleLarge, color = FaturaColors.Ink)
             }
-            Box(
-                modifier = Modifier.size(36.dp).clip(CircleShape).background(FaturaColors.AccentSoft).clickable(onClick = onSettings),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = state.account?.initials ?: "?",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = FaturaColors.Accent,
-                )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier.size(36.dp).clip(CircleShape).background(FaturaColors.AccentSoft).clickable(onClick = onSettings),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = state.account?.initials ?: "?",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = FaturaColors.Accent,
+                    )
+                }
+                FaturaIconButton(contentDescription = tr("Sign out", "Terminar sessão"), onClick = { showSignOutDialog = true }) {
+                    FaturaIcons.SignOut(tint = FaturaColors.Ink, size = 18.dp)
+                }
             }
         }
 
@@ -185,6 +197,29 @@ fun HomeScreen(
             onRetry = { viewModel.actions.retry(invoice.id) },
             onDelete = { viewModel.actions.delete(invoice.id) },
             onDismiss = viewModel.actions::close,
+        )
+    }
+
+    if (showSignOutDialog) {
+        AlertDialog(
+            onDismissRequest = { showSignOutDialog = false },
+            containerColor = FaturaColors.Surface,
+            title = { Text(tr("Sign out?", "Terminar sessão?"), color = FaturaColors.Ink) },
+            text = {
+                Text(
+                    tr("Signing out removes this device's invoice history. Your spreadsheets are untouched.", "Terminar a sessão remove o histórico de faturas deste dispositivo. As suas folhas de cálculo não são alteradas."),
+                    color = FaturaColors.Muted,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    showSignOutDialog = false
+                    viewModel.signOut()
+                }) { Text(tr("Sign out", "Terminar sessão"), color = FaturaColors.Danger) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSignOutDialog = false }) { Text(tr("Cancel", "Cancelar"), color = FaturaColors.Muted) }
+            },
         )
     }
 }

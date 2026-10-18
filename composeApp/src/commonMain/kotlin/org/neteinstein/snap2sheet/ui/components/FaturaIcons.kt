@@ -180,6 +180,51 @@ object FaturaIcons {
         }
     }
 
+    /** Circular arrow, for reloading a list. */
+    @Composable
+    fun Refresh(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 20.dp) {
+        Canvas(modifier.size(size)) {
+            val w = this.size.width
+            val stroke = Stroke(width = w * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            val r = w * 0.32f
+            val c = Offset(w / 2, w / 2)
+            // An open ring with a gap at the top right; the arrowhead sits at its end.
+            drawArc(tint, startAngle = -40f, sweepAngle = 300f, useCenter = false, topLeft = Offset(c.x - r, c.y - r), size = Size(r * 2, r * 2), style = stroke)
+            val endAngle = -100.0 * kotlin.math.PI / 180.0
+            val end = Offset(c.x + r * kotlin.math.cos(endAngle).toFloat(), c.y + r * kotlin.math.sin(endAngle).toFloat())
+            val head = androidx.compose.ui.graphics.Path().apply {
+                moveTo(end.x - w * 0.02f, end.y - w * 0.16f)
+                lineTo(end.x + w * 0.14f, end.y)
+                lineTo(end.x - w * 0.02f, end.y + w * 0.16f)
+            }
+            drawPath(head, color = tint, style = stroke)
+        }
+    }
+
+    /** A door with an arrow leaving it, for signing out. */
+    @Composable
+    fun SignOut(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 20.dp) {
+        Canvas(modifier.size(size)) {
+            val w = this.size.width
+            val h = this.size.height
+            val stroke = Stroke(width = w * 0.1f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            val door = androidx.compose.ui.graphics.Path().apply {
+                moveTo(w * 0.45f, h * 0.15f)
+                lineTo(w * 0.18f, h * 0.15f)
+                lineTo(w * 0.18f, h * 0.85f)
+                lineTo(w * 0.45f, h * 0.85f)
+            }
+            drawPath(door, color = tint, style = stroke)
+            drawLine(tint, Offset(w * 0.4f, h * 0.5f), Offset(w * 0.86f, h * 0.5f), stroke.width, StrokeCap.Round)
+            val head = androidx.compose.ui.graphics.Path().apply {
+                moveTo(w * 0.7f, h * 0.33f)
+                lineTo(w * 0.87f, h * 0.5f)
+                lineTo(w * 0.7f, h * 0.67f)
+            }
+            drawPath(head, color = tint, style = stroke)
+        }
+    }
+
     @Composable
     fun Gear(modifier: Modifier = Modifier, tint: Color, size: androidx.compose.ui.unit.Dp = 20.dp) {
         Canvas(modifier.size(size)) {

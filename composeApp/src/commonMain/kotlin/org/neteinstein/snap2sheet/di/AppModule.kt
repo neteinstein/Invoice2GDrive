@@ -96,7 +96,7 @@ internal val appModule = module {
     }
 
     viewModel { SignInViewModel(get(), get(), get()) }
-    viewModel { HomeViewModel(get(), get(), get(), get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get(), get(), get(), get()) }
     viewModel { ScanViewModel(get()) }
     viewModel { PhotoViewModel(get()) }
     viewModel { ReviewViewModel(get(), get(), get(), get(), get(), get()) }
