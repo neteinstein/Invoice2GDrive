@@ -50,7 +50,7 @@ object Formatting {
         return runCatching { if (parts[0].length == 4) LocalDate(a, b, c) else LocalDate(c, b, a) }.getOrNull()
     }
 
-    private val weekdays = tr("Mon,Tue,Wed,Thu,Fri,Sat,Sun", "Seg,Ter,Qua,Qui,Sex,Sáb,Dom").split(",")
+    private val weekdays get() = tr("Mon,Tue,Wed,Thu,Fri,Sat,Sun", "Seg,Ter,Qua,Qui,Sex,Sáb,Dom").split(",")
 
     /** "Today · 14:32", "Yesterday · 18:05", "Mon · 09:14", or "14/09/2026" for anything older than a week. */
     fun scannedAt(epochMillis: Long, nowEpochMillis: Long, timeZone: TimeZone = TimeZone.currentSystemDefault()): String {

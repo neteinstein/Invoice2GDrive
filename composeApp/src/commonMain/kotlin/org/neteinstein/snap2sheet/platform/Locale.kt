@@ -1,12 +1,21 @@
 package org.neteinstein.snap2sheet.platform
 
-/** The device's preferred language as a lowercase BCP-47 tag, e.g. "pt-pt" or "en-us". */
-expect fun deviceLanguageTag(): String
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 
-/** English by default; Portuguese when the device's language is Portuguese. Fixed for the process. */
-val isPortuguese: Boolean = deviceLanguageTag().lowercase().startsWith("pt")
+enum class AppLanguage { PT, EN }
 
-/** Picks the English or Portuguese text for the device language. */
+/**
+ * The language the app shows: Portuguese by default, switchable to English from the top-right toggle (App.kt).
+ * Snapshot state, so composables that call [tr] recompose when it changes. Persisted by
+ * [org.neteinstein.snap2sheet.data.repository.SettingsRepository.setLanguage] and restored by `initKoin()`.
+ */
+var appLanguage: AppLanguage by mutableStateOf(AppLanguage.PT)
+
+val isPortuguese: Boolean get() = appLanguage == AppLanguage.PT
+
+/** Picks the English or Portuguese text for the current [appLanguage]. */
 fun tr(en: String, pt: String): String = if (isPortuguese) pt else en
 
 /** The app's display name. */

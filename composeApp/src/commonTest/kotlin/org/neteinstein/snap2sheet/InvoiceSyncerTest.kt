@@ -1,5 +1,7 @@
 package org.neteinstein.snap2sheet
 
+import org.neteinstein.snap2sheet.platform.AppLanguage
+import org.neteinstein.snap2sheet.platform.appLanguage
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
@@ -16,6 +18,7 @@ import org.neteinstein.snap2sheet.testing.InMemoryPhotoStore
 import org.neteinstein.snap2sheet.testing.RecordingNotifier
 import org.neteinstein.snap2sheet.testing.RecordingScheduler
 import org.neteinstein.snap2sheet.testing.SAMPLE_QR
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -23,6 +26,12 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
 
 class InvoiceSyncerTest {
+
+    // Expected strings below are the English copy; the app defaults to Portuguese.
+    @BeforeTest
+    fun useEnglish() {
+        appLanguage = AppLanguage.EN
+    }
 
     private val store = InMemoryKeyValueStore()
     private val photos = InMemoryPhotoStore()

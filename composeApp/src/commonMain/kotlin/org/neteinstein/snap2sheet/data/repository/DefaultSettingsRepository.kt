@@ -6,8 +6,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import org.neteinstein.snap2sheet.data.local.KeyValueStore
 import org.neteinstein.snap2sheet.domain.model.AppTheme
 import org.neteinstein.snap2sheet.domain.model.AppendRules
+import org.neteinstein.snap2sheet.platform.AppLanguage
+import org.neteinstein.snap2sheet.platform.appLanguage
 
 private const val KEY_THEME = "theme"
+private const val KEY_LANGUAGE = "language"
 private const val KEY_MATCH_BY_HEADER = "append_match_by_header"
 private const val KEY_SKIP_DUPLICATES = "append_skip_duplicates"
 private const val KEY_NEW_TAB_MONTHLY = "append_new_tab_monthly"
@@ -25,6 +28,17 @@ class DefaultSettingsRepository(private val store: KeyValueStore) : SettingsRepo
     override fun setTheme(theme: AppTheme) {
         _theme.value = theme
         store.putString(KEY_THEME, theme.name)
+    }
+
+    private val _language = MutableStateFlow(
+        store.getString(KEY_LANGUAGE)?.let { runCatching { AppLanguage.valueOf(it) }.getOrNull() } ?: AppLanguage.PT
+    )
+    override val language: StateFlow<AppLanguage> = _language.asStateFlow()
+
+    override fun setLanguage(language: AppLanguage) {
+        _language.value = language
+        appLanguage = language
+        store.putString(KEY_LANGUAGE, language.name)
     }
 
     private val _appendRules = MutableStateFlow(

@@ -3,6 +3,8 @@ package org.neteinstein.snap2sheet
 import org.neteinstein.snap2sheet.data.local.KeyValueStore
 import org.neteinstein.snap2sheet.data.repository.DefaultSettingsRepository
 import org.neteinstein.snap2sheet.domain.model.AppTheme
+import org.neteinstein.snap2sheet.platform.AppLanguage
+import org.neteinstein.snap2sheet.platform.appLanguage
 import org.neteinstein.snap2sheet.testing.InMemoryKeyValueStore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,5 +41,18 @@ class SettingsRepositoryTest {
 
         assertEquals(true, repository.notifyWhenSaveFinishes.value)
         assertFalse(repository.appendRules.value.newSheetTabEachMonth)
+    }
+
+    @Test
+    fun language_defaultsToPortuguese_andPersistsEnglish() {
+        val store = InMemoryKeyValueStore()
+        val repository = DefaultSettingsRepository(store)
+        assertEquals(AppLanguage.PT, repository.language.value)
+
+        repository.setLanguage(AppLanguage.EN)
+
+        assertEquals(AppLanguage.EN, appLanguage)
+        assertEquals(AppLanguage.EN, DefaultSettingsRepository(store).language.value)
+        repository.setLanguage(AppLanguage.PT)
     }
 }
