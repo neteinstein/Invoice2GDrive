@@ -23,7 +23,7 @@ private fun revokeJs(token: String): Unit = js("window.faturaAuth.revoke(token)"
 
 /**
  * The Google Identity Services token client (`accounts.google.com/gsi/client`, loaded by
- * index.html). Browsers get short-lived access tokens only — no refresh token — so an expired one
+ * app.html). Browsers get short-lived access tokens only — no refresh token — so an expired one
  * is re-requested with `prompt: ''`, which completes without UI while the Google session and the
  * grant are still valid. Needs a "Web application" OAuth client whose authorized JavaScript
  * origins include the deployed site (`google.webClientId`, see composeApp/build.gradle.kts, or
