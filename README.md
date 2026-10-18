@@ -11,6 +11,8 @@ Read the [Privacy Policy](https://neteinstein.github.io/Invoice2GDrive/privacy.h
 [Terms of Service](https://neteinstein.github.io/Invoice2GDrive/terms.html). Their source is in
 `composeApp/src/wasmJsMain/resources/`, and they are deployed with the web app. Use these URLs on
 the Google OAuth consent screen.
+Upload [`docs/logo/oauth-logo-120.png`](docs/logo/oauth-logo-120.png) (120×120 PNG) as the consent screen's
+app logo.
 
 ## Stack
 

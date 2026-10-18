@@ -164,61 +164,55 @@ object FaturaIcons {
     }
 
     /**
-     * The full-colour app icon (docs/logo/logo.svg): a receipt with the scan grid inside viewfinder
-     * corners, on the blue gradient tile. Drawn in the SVG's 1024-unit space and scaled to [size].
+     * The full-colour app icon (docs/logo/logo.svg): a receipt with a coral check badge, on the
+     * violet gradient tile. Drawn in the SVG's 1024-unit space and scaled to [size].
      */
     @Composable
     fun AppLogo(modifier: Modifier = Modifier, size: androidx.compose.ui.unit.Dp = 72.dp) {
         Canvas(modifier.size(size)) {
             scale(this.size.width / 1024f, pivot = Offset.Zero) {
                 drawRoundRect(
-                    Brush.linearGradient(listOf(Color(0xFF3D6FCB), Color(0xFF22468A)), start = Offset.Zero, end = Offset(1024f, 1024f)),
+                    Brush.linearGradient(listOf(Color(0xFF5B3BD6), Color(0xFF2F1A86)), start = Offset.Zero, end = Offset(1024f, 1024f)),
                     size = Size(1024f, 1024f),
                     cornerRadius = CornerRadius(228f, 228f),
                 )
-
-                val corners = Path().apply {
-                    moveTo(232f, 250f); lineTo(232f, 186f); quadraticTo(232f, 158f, 260f, 158f); lineTo(324f, 158f)
-                    moveTo(700f, 158f); lineTo(764f, 158f); quadraticTo(792f, 158f, 792f, 186f); lineTo(792f, 250f)
-                    moveTo(232f, 780f); lineTo(232f, 844f); quadraticTo(232f, 872f, 260f, 872f); lineTo(324f, 872f)
-                    moveTo(700f, 872f); lineTo(764f, 872f); quadraticTo(792f, 872f, 792f, 844f); lineTo(792f, 780f)
-                }
-                drawPath(corners, Color.White.copy(alpha = 0.6f), style = Stroke(width = 26f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                val shadow = Color(0xFF150B45).copy(alpha = 0.3f)
 
                 // Receipt with a torn (zigzag) bottom edge.
                 val receipt = Path().apply {
-                    moveTo(348f, 230f)
-                    lineTo(676f, 230f)
-                    arcTo(Rect(640f, 230f, 712f, 302f), -90f, 90f, false)
-                    lineTo(712f, 800f)
-                    var x = 712f
-                    while (x > 312f) {
-                        lineTo(x - 25f, 774f)
-                        lineTo(x - 50f, 800f)
-                        x -= 50f
+                    moveTo(298f, 196f)
+                    lineTo(594f, 196f)
+                    arcTo(Rect(558f, 196f, 630f, 268f), -90f, 90f, false)
+                    lineTo(630f, 800f)
+                    var x = 630f
+                    while (x > 262f) {
+                        lineTo(x - 23f, 776f)
+                        lineTo(x - 46f, 800f)
+                        x -= 46f
                     }
-                    lineTo(312f, 266f)
-                    arcTo(Rect(312f, 230f, 384f, 302f), 180f, 90f, false)
+                    lineTo(262f, 232f)
+                    arcTo(Rect(262f, 196f, 334f, 268f), 180f, 90f, false)
                     close()
                 }
-                translate(top = 14f) { drawPath(receipt, Color(0xFF0B1F45).copy(alpha = 0.28f)) }
+                translate(top = 14f) { drawPath(receipt, shadow) }
                 drawPath(receipt, Color.White)
 
-                val gridColor = Color(0xFF2E5AAC)
-                fun sq(x: Float, y: Float, s: Float, r: Float) =
-                    drawRoundRect(gridColor, topLeft = Offset(x, y), size = Size(s, s), cornerRadius = CornerRadius(r, r))
-                sq(392f, 300f, 112.5f, 15f)
-                sq(519.5f, 300f, 112.5f, 15f)
-                sq(392f, 427.5f, 112.5f, 15f)
-                sq(519.5f, 427.5f, 48.75f, 7f)
-                sq(577.25f, 427.5f, 48.75f, 7f)
-                sq(519.5f, 485.25f, 48.75f, 7f)
-                sq(577.25f, 485.25f, 48.75f, 7f)
+                drawRoundRect(Color(0xFF4B2DB3), topLeft = Offset(314f, 266f), size = Size(180f, 40f), cornerRadius = CornerRadius(20f, 20f))
+                val lineColor = Color(0xFFDCD3F7)
+                fun line(y: Float, w: Float) =
+                    drawRoundRect(lineColor, topLeft = Offset(314f, y), size = Size(w, 24f), cornerRadius = CornerRadius(12f, 12f))
+                line(350f, 264f)
+                line(402f, 200f)
+                line(454f, 264f)
+                line(526f, 110f)
 
-                val lineColor = Color(0xFFC9D6EE)
-                drawRoundRect(lineColor, topLeft = Offset(372f, 580f), size = Size(280f, 24f), cornerRadius = CornerRadius(12f, 12f))
-                drawRoundRect(lineColor, topLeft = Offset(372f, 626f), size = Size(196f, 24f), cornerRadius = CornerRadius(12f, 12f))
-                drawRoundRect(Color(0xFF1F8A5F), topLeft = Offset(542f, 690f), size = Size(110f, 30f), cornerRadius = CornerRadius(15f, 15f))
+                // The "saved" check badge.
+                drawCircle(shadow, radius = 140f, center = Offset(640f, 714f))
+                drawCircle(Color(0xFFFF6A3D), radius = 140f, center = Offset(640f, 700f))
+                val check = Path().apply {
+                    moveTo(576f, 704f); lineTo(622f, 750f); lineTo(708f, 656f)
+                }
+                drawPath(check, Color.White, style = Stroke(width = 42f, cap = StrokeCap.Round, join = StrokeJoin.Round))
             }
         }
     }
