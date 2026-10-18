@@ -23,6 +23,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,6 +37,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,7 +47,6 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.neteinstein.snap2sheet.ui.components.BottomNavBar
 import org.neteinstein.snap2sheet.ui.components.BottomNavTab
 import org.neteinstein.snap2sheet.ui.components.FaturaCard
-import org.neteinstein.snap2sheet.ui.components.FaturaIconButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.IconBadge
 import org.neteinstein.snap2sheet.ui.components.InvoiceDetailSheet
@@ -59,6 +64,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = koinViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    var showProfileMenu by remember { mutableStateOf(false) }
     var showSignOutDialog by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().background(FaturaColors.Surface)) {
@@ -74,9 +80,15 @@ fun HomeScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(appName, style = MaterialTheme.typography.titleLarge, color = FaturaColors.Ink)
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            // Profile avatar: opens a menu with the signed-in email (read-only) and Sign out.
+            Box {
                 Box(
-                    modifier = Modifier.size(36.dp).clip(CircleShape).background(FaturaColors.AccentSoft).clickable(onClick = onSettings),
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(FaturaColors.AccentSoft)
+                        .clickable(role = Role.Button, onClick = { showProfileMenu = true })
+                        .semantics { contentDescription = tr("Account", "Conta") },
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
@@ -85,8 +97,26 @@ fun HomeScreen(
                         color = FaturaColors.Accent,
                     )
                 }
-                FaturaIconButton(contentDescription = tr("Sign out", "Terminar sessão"), onClick = { showSignOutDialog = true }) {
-                    FaturaIcons.SignOut(tint = FaturaColors.Ink, size = 18.dp)
+                DropdownMenu(
+                    expanded = showProfileMenu,
+                    onDismissRequest = { showProfileMenu = false },
+                    containerColor = FaturaColors.Surface,
+                ) {
+                    state.account?.let { account ->
+                        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                            Text(tr("Signed in as", "Sessão iniciada como"), style = MaterialTheme.typography.labelSmall, color = FaturaColors.Muted)
+                            Text(account.email, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = FaturaColors.Ink)
+                        }
+                        HorizontalDivider(color = FaturaColors.Border)
+                    }
+                    DropdownMenuItem(
+                        text = { Text(tr("Sign out", "Terminar sessão"), color = FaturaColors.Danger) },
+                        leadingIcon = { FaturaIcons.SignOut(tint = FaturaColors.Danger, size = 18.dp) },
+                        onClick = {
+                            showProfileMenu = false
+                            showSignOutDialog = true
+                        },
+                    )
                 }
             }
         }
