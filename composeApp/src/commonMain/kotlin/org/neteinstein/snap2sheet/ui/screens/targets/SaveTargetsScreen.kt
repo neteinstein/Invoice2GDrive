@@ -48,6 +48,7 @@ import org.neteinstein.snap2sheet.domain.model.AppendRules
 import org.neteinstein.snap2sheet.domain.model.DriveItem
 import org.neteinstein.snap2sheet.ui.components.FaturaCard
 import org.neteinstein.snap2sheet.ui.components.FaturaDashedButton
+import org.neteinstein.snap2sheet.ui.components.FaturaIconButton
 import org.neteinstein.snap2sheet.ui.components.FaturaIcons
 import org.neteinstein.snap2sheet.ui.components.FaturaPrimaryButton
 import org.neteinstein.snap2sheet.ui.components.FaturaTopBar
@@ -78,12 +79,13 @@ fun SaveTargetsScreen(
             },
             onBack = onBack,
             trailing = {
-                Text(
-                    if (state.isRefreshing) tr("Refreshing…", "A atualizar…") else tr("Refresh", "Atualizar"),
-                    style = MaterialTheme.typography.labelMedium,
-                    color = FaturaColors.Accent,
-                    modifier = if (state.isRefreshing) Modifier else Modifier.clickable(onClick = viewModel::refresh),
-                )
+                FaturaIconButton(
+                    contentDescription = if (state.isRefreshing) tr("Refreshing…", "A atualizar…") else tr("Refresh", "Atualizar"),
+                    onClick = viewModel::refresh,
+                    enabled = !state.isRefreshing,
+                ) {
+                    FaturaIcons.Refresh(tint = FaturaColors.Accent, size = 18.dp)
+                }
             },
         )
 

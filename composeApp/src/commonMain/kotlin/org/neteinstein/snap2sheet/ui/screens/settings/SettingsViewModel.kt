@@ -19,6 +19,7 @@ import org.neteinstein.snap2sheet.data.repository.SpreadsheetRepository
 import org.neteinstein.snap2sheet.domain.model.AppendRules
 import org.neteinstein.snap2sheet.domain.model.GoogleAccount
 import org.neteinstein.snap2sheet.ui.MessageCenter
+import org.neteinstein.snap2sheet.ui.screens.common.SignOutAction
 
 data class SettingsUiState(
     val account: GoogleAccount? = null,
@@ -60,14 +61,11 @@ class SettingsViewModel(
         state.copy(isReconnecting = reconnecting)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), SettingsUiState())
 
+    private val signOutAction = SignOutAction(accountRepository, invoiceRepository, spreadsheetRepository, folderRepository)
+
     /** Signs out and forgets everything tied to the account: history, photos, Drive lists, defaults. */
     fun signOut() {
-        viewModelScope.launch {
-            accountRepository.signOut()
-            invoiceRepository.clear()
-            spreadsheetRepository.clear()
-            folderRepository.clear()
-        }
+        viewModelScope.launch { signOutAction() }
     }
 
     /** Re-runs Google sign-in without clearing anything — for an expired or revoked session. */
