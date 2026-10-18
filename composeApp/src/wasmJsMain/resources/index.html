@@ -21,6 +21,10 @@
         .cta:hover { background: #4B2DB3; }
         .small { color: var(--muted); font-size: .9rem; }
         ol li, ul li { margin-bottom: .4em; }
+        .demo {
+            display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; margin: 0 0 16px;
+            border-radius: 12px; background: #0F1420;
+        }
     </style>
 </head>
 <body>
@@ -34,6 +38,13 @@
     </section>
 
     <h2>What Invoice2Sheet does</h2>
+    <video class="demo" controls muted playsinline preload="metadata" poster="demo-poster.jpg"
+           width="1280" height="720"
+           aria-label="Demo: connecting a Google account, choosing a spreadsheet and a Drive folder, then scanning an invoice, checking its details and saving it as a new row.">
+        <source src="demo.mp4" type="video/mp4">
+        <source src="demo.webm" type="video/webm">
+        <a href="demo.mp4">Watch the demo video</a>
+    </video>
     <p>Every Portuguese invoice carries a fiscal QR code (Portaria n.º 195/2020) with the seller's and
         buyer's NIF, the date, the ATCUD, VAT and the total. Invoice2Sheet reads that code with your camera,
         lets you review the details, and saves the invoice as a row in a Google Sheets spreadsheet you
