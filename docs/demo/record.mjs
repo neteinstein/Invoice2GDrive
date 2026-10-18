@@ -20,8 +20,7 @@ if (process.argv.includes('--build')) {
 }
 
 const CLIENT = `<div class="client"><b>OAuth client: Web application</b><br>
-  Authorized JavaScript origin <code>https://neteinstein.github.io</code><br>
-  Google Identity Services token client, in the browser at <code>neteinstein.github.io/Invoice2GDrive/app.html</code></div>`;
+  Google Identity Services token client, signing in from the Invoice2Sheet web app</div>`;
 
 const SCOPES = `<b>Scopes requested</b><br>
   <code>…/auth/spreadsheets</code>: append invoice rows, create a spreadsheet<br>
@@ -159,7 +158,7 @@ async function main() {
   clips.push(await stop());
 
   clips.push(await recordCard(s, 'outro', { step: 'Summary', title: 'Your data stays yours', text:
-    'Invoice2Sheet has no server. Invoice data goes only from your device to your own Google Sheets and Drive. Privacy Policy and Terms: neteinstein.github.io/Invoice2GDrive.', html: CLIENT }, 7000));
+    'Invoice2Sheet has no server. Invoice data goes only from your device to your own Google Sheets and Drive. The Privacy Policy and Terms of Service are linked from the sign-in screen.', html: CLIENT }, 7000));
   await s.close();
 
   // Re-encode every clip to the same format so the concat is clean.

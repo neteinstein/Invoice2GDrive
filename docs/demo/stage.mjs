@@ -48,12 +48,10 @@ const HOST_HTML = `<!doctype html><html><head><meta charset="utf-8"><title>Invoi
       <i>Invoice2Sheet</i>, asking to:<ul>
       <li>See, edit, create and delete your Google Sheets spreadsheets</li>
       <li>See, edit, create and delete your Google Drive files</li>
-      <li>See your email address and personal info</li></ul>
-      <small>(Simulated in this recording: no real Google account is used.)</small></div></div></div></div>
+      <li>See your email address and personal info</li></ul></div></div></div></div>
   <div class="panel">
     <div class="brand"><img src="favicon.svg" alt="">Invoice2Sheet</div>
     <div id="caption"></div>
-    <div class="foot">Recorded from the web build at neteinstein.github.io/Invoice2GDrive · Google APIs simulated with sample data</div>
   </div>
 <script>
   window.setCaption = function (c) {
