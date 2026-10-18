@@ -1,4 +1,8 @@
-name: Deploy web to GitHub Pages
+name: Deploy web
+
+# Every push to main builds the Kotlin/Wasm site once and publishes it to both GitHub Pages and
+# Cloudflare Pages while the site moves between hosts. The two deploy jobs are independent: one
+# host failing doesn't hold back the other. See README.md → Web deployment.
 
 on:
   push:
@@ -54,3 +58,45 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  deploy-cloudflare:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: cloudflare-pages
+      url: ${{ steps.deploy.outputs.deployment-url }}
+    steps:
+      # Skipped, not failed, until the Cloudflare credentials are set: GitHub Pages still deploys.
+      - name: Check Cloudflare configuration
+        id: config
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "::notice::CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID is not set - skipped the Cloudflare Pages deploy (see README.md → Web deployment)."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Reuse the exact build GitHub Pages gets: the Pages artifact is a tarball of the site.
+      - uses: actions/download-artifact@v8
+        if: steps.config.outputs.enabled == 'true'
+        with:
+          name: github-pages
+          path: ${{ runner.temp }}/pages-artifact
+
+      - name: Unpack site
+        if: steps.config.outputs.enabled == 'true'
+        run: |
+          mkdir -p "$RUNNER_TEMP/site"
+          tar -xf "$RUNNER_TEMP/pages-artifact/artifact.tar" -C "$RUNNER_TEMP/site"
+
+      - id: deploy
+        if: steps.config.outputs.enabled == 'true'
+        uses: cloudflare/wrangler-action@v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy ${{ runner.temp }}/site --project-name=${{ vars.CLOUDFLARE_PAGES_PROJECT || 'invoice2sheet' }} --branch=main --commit-hash=${{ github.sha }}
