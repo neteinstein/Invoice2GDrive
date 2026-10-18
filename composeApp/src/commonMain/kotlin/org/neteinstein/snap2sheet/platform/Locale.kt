@@ -10,4 +10,4 @@ val isPortuguese: Boolean = deviceLanguageTag().lowercase().startsWith("pt")
 fun tr(en: String, pt: String): String = if (isPortuguese) pt else en
 
 /** The app's display name. */
-val appName: String = "Snap2Sheet"
+val appName: String = "Invoice2Sheet"
