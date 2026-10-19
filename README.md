@@ -11,6 +11,8 @@ Read the [Privacy Policy](https://invoice2sheet.pedrovicente.pt/privacy.html) an
 [Terms of Service](https://invoice2sheet.pedrovicente.pt/terms.html). Their source is in
 `composeApp/src/wasmJsMain/resources/`, and they are deployed with the web app. Use these URLs on
 the Google OAuth consent screen.
+A [demo video](docs/demo/invoice2sheet-demo.mp4) walks through the web app for OAuth reviewers.
+See [`docs/demo/`](docs/demo/README.md) for how it's recorded.
 Upload [`docs/logo/oauth-logo-120.png`](docs/logo/oauth-logo-120.png) (120×120 PNG) as the consent screen's
 app logo.
 
