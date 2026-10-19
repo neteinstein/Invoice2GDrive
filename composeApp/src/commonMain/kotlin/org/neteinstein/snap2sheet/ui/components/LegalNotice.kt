@@ -15,8 +15,8 @@ import androidx.compose.ui.text.withLink
 import org.neteinstein.snap2sheet.platform.tr
 import org.neteinstein.snap2sheet.ui.theme.FaturaColors
 
-private const val TERMS_URL = "https://neteinstein.github.io/Invoice2GDrive/terms.html"
-private const val PRIVACY_URL = "https://neteinstein.github.io/Invoice2GDrive/privacy.html"
+private const val TERMS_URL = "https://neteinstein.github.io/Invoice2Sheet/terms.html"
+private const val PRIVACY_URL = "https://neteinstein.github.io/Invoice2Sheet/privacy.html"
 
 /** "By continuing you agree to the Terms of Service and Privacy Policy.", both documents linked. */
 @Composable
